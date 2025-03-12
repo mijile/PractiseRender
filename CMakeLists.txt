@@ -22,4 +22,4 @@ set(SOURCES
 #	set(变量名 $(变量名) 新信息...)
 
 set(TARGET RGS)
-add_executable(${TARGET} ${HEADER} ${SOURCES})
+add_executable(${TARGET} ${HEADERS} ${SOURCES})
