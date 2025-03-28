@@ -10,12 +10,27 @@ set(CMAKE_CXX_STANDARD 17)
 #		 定义
 #		....)
 set(HEADERS
-
+	"src/Application.h"
+	"src/Window.h"
+	"src/WindowsWindow.h"
+	"src/Base.h"
+	"src/InputCodes.h"
+	"src/Framebuffer.h"
+	"src/Renderer.h"
+	"src/vector.h"
+	"src/Shader/ShaderBase.h"
+	"src/Shader/BlinnShader.h"
 )
 
 set(SOURCES
 	"src/Main.cpp"
 	"src/Application.cpp"
+	"src/Window.cpp"
+	"src/WindowsWindow.cpp"
+	"src/Framebuffer.cpp"
+	"src/vector.cpp"
+	"src/Renderer.cpp"
+	"src/Shader/BlinnShader.cpp"
 )
 
 #	后置附加信息

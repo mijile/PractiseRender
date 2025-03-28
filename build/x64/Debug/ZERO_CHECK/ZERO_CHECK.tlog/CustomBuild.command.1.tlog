@@ -1,0 +1,10 @@
+^D:\PRACTISERENDER\BUILD\CMAKEFILES\12BEA13B0D171BAA009F73029026A86D\GENERATE.STAMP.RULE
+setlocal
+D:\Cmamke\bin\cmake.exe -SD:/PractiseRender -BD:/PractiseRender/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/PractiseRender/build/RGS.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
