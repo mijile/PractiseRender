@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "../vector.h"
+#include "../RGS/vector.h"
 namespace RGS {
 	struct VertexBase {
 		Vec4 ModelPos = { 0,0,0,1 };

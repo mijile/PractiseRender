@@ -1,8 +1,10 @@
-D:\PractiseRender\src\Main.cpp;D:\PractiseRender\build\RGS.dir\Debug\Main.obj
-D:\PractiseRender\src\Application.cpp;D:\PractiseRender\build\RGS.dir\Debug\Application.obj
-D:\PractiseRender\src\Window.cpp;D:\PractiseRender\build\RGS.dir\Debug\Window.obj
-D:\PractiseRender\src\WindowsWindow.cpp;D:\PractiseRender\build\RGS.dir\Debug\WindowsWindow.obj
-D:\PractiseRender\src\Framebuffer.cpp;D:\PractiseRender\build\RGS.dir\Debug\Framebuffer.obj
-D:\PractiseRender\src\vector.cpp;D:\PractiseRender\build\RGS.dir\Debug\vector.obj
-D:\PractiseRender\src\Renderer.cpp;D:\PractiseRender\build\RGS.dir\Debug\Renderer.obj
+D:\PractiseRender\src\stb\stb_image.cpp;D:\PractiseRender\build\RGS.dir\Debug\stb_image.obj
+D:\PractiseRender\src\RGS\Main.cpp;D:\PractiseRender\build\RGS.dir\Debug\Main.obj
+D:\PractiseRender\src\RGS\Application.cpp;D:\PractiseRender\build\RGS.dir\Debug\Application.obj
+D:\PractiseRender\src\RGS\Window.cpp;D:\PractiseRender\build\RGS.dir\Debug\Window.obj
+D:\PractiseRender\src\RGS\WindowsWindow.cpp;D:\PractiseRender\build\RGS.dir\Debug\WindowsWindow.obj
+D:\PractiseRender\src\RGS\Framebuffer.cpp;D:\PractiseRender\build\RGS.dir\Debug\Framebuffer.obj
+D:\PractiseRender\src\RGS\vector.cpp;D:\PractiseRender\build\RGS.dir\Debug\vector.obj
+D:\PractiseRender\src\RGS\Renderer.cpp;D:\PractiseRender\build\RGS.dir\Debug\Renderer.obj
 D:\PractiseRender\src\Shader\BlinnShader.cpp;D:\PractiseRender\build\RGS.dir\Debug\BlinnShader.obj
+D:\PractiseRender\src\RGS\Texture.cpp;D:\PractiseRender\build\RGS.dir\Debug\Texture.obj
