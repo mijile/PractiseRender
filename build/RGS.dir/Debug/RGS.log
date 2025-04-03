@@ -1,2 +1,4 @@
-﻿  Texture.cpp
+﻿  Application.cpp
+  Main.cpp
+  Renderer.cpp
   RGS.vcxproj -> D:\PractiseRender\build\Debug\RGS.exe

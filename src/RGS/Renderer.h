@@ -86,7 +86,42 @@ namespace RGS {
 									 float(&weights)[3],
 									 const Vec4 (&fragCoords)[3], 
 									 const Vec2 screenPoint);
+		static void FinalRasterize(Framebuffer& framebuffer, const DepthFuncType& depthFunc) {
 
+			//MSAA
+			int width = framebuffer.GetWidth();
+			int height = framebuffer.GetHeight();
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					Vec3 color1 = framebuffer.MSAAGetColor(2*x, 2*y);
+					float zdepth = framebuffer.MSAAGetDepth(2 * x, 2 * y);
+					float depth = framebuffer.MSAAGetDepth(2 * x, 2 * y + 1);
+					if (PassDepthTest(depth, zdepth, depthFunc)){
+						color1 = color1 + framebuffer.MSAAGetColor(2 * x, 2 * y + 1);
+					}
+					else {
+						color1 = framebuffer.MSAAGetColor(2 * x, 2 * y + 1);
+						zdepth = depth;
+					}
+					depth = framebuffer.MSAAGetDepth(2 * x + 1, 2 * y);
+					if (PassDepthTest(depth, zdepth, depthFunc)) {
+						color1 = color1 + framebuffer.MSAAGetColor(2 * x, 2 * y + 1);
+					}
+					else {
+						color1 = framebuffer.MSAAGetColor(2 * x, 2 * y + 1);
+					}
+					depth = framebuffer.MSAAGetDepth(2 * x + 1, 2 * y + 1);
+					if (PassDepthTest(depth, zdepth, depthFunc)) {
+						color1 = color1 + framebuffer.MSAAGetColor(2 * x, 2 * y + 1);
+					}
+					else {
+						color1 = framebuffer.MSAAGetColor(2 * x, 2 * y + 1);
+					}
+					framebuffer.SetColor(x, y, color1 / 4.0f);
+					
+				}
+			}
+		}
 		template<typename vertex_t, typename uniforms_t, typename varyings_t>
 		static void ProcessPixel(Framebuffer& framebuffer,
 			const int x,
@@ -107,13 +142,13 @@ namespace RGS {
 			color.W = Clamp(color.W, 0.0f, 1.0f);
 
 			//Blend
-			if (program.EnableBlend) {
-				Vec3 dstColor = framebuffer.GetColor(x, y);
+			/*if (program.EnableBlend) {
+				Vec3 dstColor = framebuffer.MSAAGetColor(x, y);
 				Vec3 srcColor = color;
 				float alpha = color.W;
 				color = { Lerp(dstColor , srcColor , alpha) , 1.0f };
-			}
-			framebuffer.SetColor(x, y, color);
+			}*/
+			framebuffer.MSAASetColor(x, y, color);
 		}
 
 		template<typename varyings_t>
@@ -265,11 +300,11 @@ namespace RGS {
 			fragCoords[1] = varyings[1].FragPos;
 			fragCoords[2] = varyings[2].FragPos;
 			BoundingBox bBox = GetBoundingBox(fragCoords, framebuffer.GetWidth(), framebuffer.GetHeight());
-			for (int y = bBox.MinY; y <= bBox.MaxY; y++) {
-				for (int x = bBox.MinX; x <= bBox.MaxX; x++) {
+			for (int y = bBox.MinY * 2; y <= std::min(bBox.MaxY * 2 + 1, framebuffer.GetHeight() * 2 - 1); y+=1) {
+				for (int x = bBox.MinX * 2; x <= std::min(bBox.MaxX * 2 + 1, framebuffer.GetWidth() * 2 - 1); x+=1) {
 					float screenWeights[3];
 					float weights[3];
-					Vec2 screenPoint ={ (float)x + 0.5f, (float)y + 0.5f };
+					Vec2 screenPoint ={ ((float)x)*0.5f + 0.25f, ((float)y) * 0.5f + 0.25f };
 				
 					CalculateWeights(screenWeights, weights, fragCoords, screenPoint);
 
@@ -282,17 +317,18 @@ namespace RGS {
 					//zbuffer
 					if (program.EnableDepthTest) {
 						float depth = pixVaryings.FragPos.Z;
-						float zdepth = framebuffer.GetDepth(x, y);
+						float zdepth = framebuffer.MSAAGetDepth(x, y);
 						DepthFuncType depthFunc = program.DepthFunc;
 						if (!PassDepthTest(depth,zdepth , depthFunc)) {
 							continue;
 						}
-						framebuffer.SetDepth(x, y, depth);
+						framebuffer.MSAASetDepth(x, y, depth);
 					}
 					ProcessPixel(framebuffer, x, y, program, pixVaryings, uniforms);
-				
+
 				}
 			}
+			
 		}
 		
 	public:
@@ -327,6 +363,7 @@ namespace RGS {
 				
 				RasterizeTriangle(framebuffer, program, Triangle, uniforms);
 			}
+			FinalRasterize(framebuffer, program.DepthFunc);
 		}
 	};
 }

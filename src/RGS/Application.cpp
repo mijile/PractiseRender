@@ -63,7 +63,6 @@ namespace RGS {
 		Framebuffer framebuffer(m_Width, m_Height);
 		framebuffer.Clear({ 0.0f,0.0f,0.0f });
 		m_Window->DrawFramebuffer(framebuffer);
-		BlinnUniforms uniforms;
 		Program program(BlinnVertexShader, BlinnFragmentShader);
 
 
@@ -87,16 +86,16 @@ namespace RGS {
 			Renderer::Draw(framebuffer, program, tri, m_Uniforms);
 		}
 
-		
-
-		/*uniforms.isAnother = false;
+		/*
+		Triangle<BlinnVertex> triangle;
+		m_Uniforms.isAnother = false;
 		program.EnableBlend = true;
 		program.EnableDoubleSided = true;
 		program.EnableWriteDepth = false;
 		triangle[0].ModelPos = { -10.0f,10.0f,-10.0f,1.0f };
 		triangle[1].ModelPos = { -10.0f,-10.0f,-10.0f,1.0f };
 		triangle[2].ModelPos = { 1.0f,-1.0f,-1.0f,1.0f };
-		Renderer::Draw(framebuffer, program, triangle, uniforms);*/
+		Renderer::Draw(framebuffer, program, triangle, m_Uniforms);*/
 
 		
 		m_Window->DrawFramebuffer(framebuffer);

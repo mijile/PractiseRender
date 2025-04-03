@@ -33,6 +33,27 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\WindowsWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\Shader\BlinnShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="D:\PractiseRender\src\Shader\ShaderBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
