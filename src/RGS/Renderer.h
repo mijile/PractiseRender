@@ -328,24 +328,26 @@ namespace RGS {
 			Vec3 T = ray.Origin() - object.Vertex[0].CamPos;
 
 			// 计算 barycentric weights[0]
-			weights[0] = Dot(T, P) * invDet;
-			if (weights[0] < 0.0 || weights[0] > 1.0) {
+			weights[1] = Dot(T, P) * invDet;
+			if (weights[1] < 0.0 || weights[1] > 1.0) {
 				return false;
 			}
 
 			// 计算 Q 向量和 weights[1]
 			Vec3 Q = Cross(T, E1);
-			weights[1] = Dot(ray.Direction(), Q) * invDet;
-			if (weights[1] < 0.0 || weights[0] + weights[1] > 1.0) {
+			weights[2] = Dot(ray.Direction(), Q) * invDet;
+			if (weights[2] < 0.0 || weights[2] + weights[1] > 1.0) {
 				return false;
 			}
 
 			// 计算 weights[2] 和 t
-			weights[2] = 1.0 - weights[0] - weights[1];
+			weights[0] = 1.0 - weights[2] - weights[1];
 			t = Dot(E2, Q) * invDet;
 			//std::cout << "det: " << det << ", t: " << t << std::endl;
 			//std::cout << "weights[0]: " << weights[0] << ", weights[1]: " << weights[1] << ", weights[2]: " << weights[2] << std::endl;
 			// 返回相交结果
+
+
 			return t > EPSILON;
 		}
 
@@ -521,7 +523,7 @@ namespace RGS {
 				Triangle[1] = varyings[i+1];
 				Triangle[2] = varyings[i+2];
 				//计算梯度
-				CalculateMipmapLevel(Triangle,uniforms);
+				//CalculateMipmapLevel(Triangle,uniforms);
 
 				RasterizeTriangle(framebuffer, program, Triangle, uniforms);
 			}

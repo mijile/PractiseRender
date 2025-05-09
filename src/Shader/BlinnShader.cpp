@@ -20,6 +20,7 @@ namespace RGS {
 
 	Vec4 BlinnFragmentShader(bool& discard, const BlinnVaryings& varyings, const BlinnUniforms& uniforms)
 	{	
+		//return Vec4(varyings.TexCoord.X, varyings.TexCoord.Y, 0.0f, 1.0f);
 		//if (uniforms.isAnother) {
 		//	Vec4 color = varyings.NdcPos * 0.5f + 0.5f;
 		//	color.W = 1.0f;

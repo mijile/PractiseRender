@@ -97,6 +97,7 @@ namespace RGS {
 
 		for (auto tri : m_Mesh){
 			Renderer::RayTracingDraw(framebuffer, program, tri, m_Uniforms,m_Uniforms.ObjectPool);
+			//Renderer::Draw(framebuffer, program, tri, m_Uniforms);
 		}
 
 		
