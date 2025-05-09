@@ -15,8 +15,23 @@ namespace RGS {
 		ASSERT(len != 0);
 		return v/len;
 	}
+	Vec4 Normalize(Vec4& v)
+	{
+		float len = sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z + v.W*v.W);
+		ASSERT(len != 0);
+		return v / len;
+	}
 	Vec3 Normalize(const Vec3& v) {
 		float len = sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
+		if (len == 0) {
+			return { 1.0f,0.0f,0.0f };
+		}
+		ASSERT(len != 0);
+		return v / len;
+	}
+	Vec4 Normalize(const Vec4& v)
+	{
+		float len = sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z + v.W * v.W);
 		ASSERT(len != 0);
 		return v / len;
 	}
@@ -214,4 +229,8 @@ namespace RGS {
 		return start* (1.0f - ratio) + end * ratio;
 	}
 
+	Vec4 Lerp(const Vec4& start, const Vec4& end, const float ratio)
+	{
+		return start * (1.0f - ratio) + end * ratio;
+	}
 }

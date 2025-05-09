@@ -1,4 +1,3 @@
-#include "vector.h"
 #include "Renderer.h"
 namespace RGS {
 	bool Renderer::IsVertexVisible(const Vec4& clipPos) {
@@ -77,7 +76,7 @@ namespace RGS {
 
 	bool Renderer::IsInsideTriangle(float(&weights)[3])
 	{
-		return weights[0] >= EPSLION && weights[1] >= EPSLION && weights[2] >= EPSLION;
+		return weights[0] >= EPSILON && weights[1] >= EPSILON && weights[2] >= EPSILON;
 	}
 
 	bool Renderer::IsBackFacing(const Vec4& v1, const Vec4& v2, const Vec4& v3)

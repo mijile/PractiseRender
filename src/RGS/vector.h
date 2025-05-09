@@ -2,7 +2,7 @@
 #include <string>
 #include"Base.h"
 #define PI 3.14159265359
-#define EPSLION 1e-5f
+#define EPSILON 1e-5f
 namespace RGS {
 	struct Vec2 {
 	public:
@@ -95,7 +95,7 @@ namespace RGS {
 		}
 
 	};
-	
+	float Clamp(const float value, const float minN, const float maxN);
 	struct Vec4 {
 	public:
 		float X;
@@ -137,12 +137,34 @@ namespace RGS {
 			return { X - v.X,Y - v.Y,Z - v.Z , W - v.W };
 		}
 		Vec4 operator / (float f) {
+			if (f == 0) {
+				return { 10,10,10,10 };
+			}
 			ASSERT(f != 0);
 			return { X / f,Y / f,Z / f , W/f };
 		}
 		Vec4 operator / (float f) const {
 			ASSERT(f != 0);
 			return { X / f,Y / f,Z / f ,W/f};
+		}
+		Vec4& operator += (const Vec4& v) {
+			X += v.X;
+			Y += v.Y;
+			Z += v.Z;
+			W += v.W;
+			return *this;
+		}
+
+		//
+		unsigned char toByte(float value) {
+			return static_cast<unsigned char>(Clamp(value * 255.0f, 0.0f, 255.0f));
+		}
+
+		// 将 Vec4 转换为 3 通道 RGB
+		void toRGB(unsigned char* rgb) {
+			rgb[0] = toByte(X);
+			rgb[1] = toByte(Y);
+			rgb[2] = toByte(Z);
 		}
 	};
 
@@ -242,14 +264,16 @@ namespace RGS {
 	};
 
 	//计算定义
-	float Clamp(const float value, const float minN, const float maxN);
+	
 	Vec3 Cross(const Vec3& v1, const Vec3& v2);
 	Vec4 operator* (const Mat4& m, const Vec4& v);
 	Mat4 operator* (const Mat4& left, const Mat4& right);
 	Mat4 Mat4Identity();
 	float Dot(const Vec3& v1, const Vec3& v2);
 	Vec3 Normalize(Vec3 &v);
+	Vec4 Normalize(Vec4& v);
 	Vec3 Normalize(const Vec3& v);
+	Vec4 Normalize(const Vec4& v);
 	Vec3 NormalizeToVec3(Vec4& v);
 	//空间变换
 	Mat4 Mat4Translate(float tx, float ty ,float tz);
@@ -263,6 +287,7 @@ namespace RGS {
 
 	float Lerp(const float start, const float end, const float ratio);
 	Vec3 Lerp(const Vec3& start, const Vec3& end, const float ratio);
+	Vec4 Lerp(const Vec4& start, const Vec4& end, const float ratio);
 
 	extern unsigned char Float2UChar(const float f);
 	extern float UChar2Float(const unsigned char c);

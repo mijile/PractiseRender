@@ -22,6 +22,9 @@ set(SOURCES
     "src/Shader/BlinnShader.h"
     "src/Shader/ShaderBase.h"
     "src/RGS/Texture.cpp"
+    "src/RGS/Texture.h"
+    "src/RGS/Ray.h"
+    "src/RGS/Ray.cpp"
 )
 
 add_executable(RGS ${SOURCES})

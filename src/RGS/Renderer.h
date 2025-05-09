@@ -4,13 +4,15 @@
 #include<type_traits>
 #include "Framebuffer.h"
 #include "Base.h"
+#include "Ray.h"
+#include <vector>
 
 
 namespace RGS {
 
 	template<typename vertex_t>
 	struct Triangle {
-		static_assert(std::is_base_of<VertexBase, vertex_t>::value, "vertex_t must be derived from VertexBase");
+		//static_assert(std::is_base_of<VertexBase, vertex_t>::value, "vertex_t must be derived from VertexBase");
 		
 		vertex_t Vertex[3];
 
@@ -122,6 +124,27 @@ namespace RGS {
 				}
 			}
 		}
+
+		template<typename uniforms_t, typename varyings_t>
+		static void CalculateMipmapLevel(const varyings_t(&varyings)[3],  uniforms_t& uniforms) {
+			float du1 = varyings[1].TexCoord.X - varyings[0].TexCoord.X;
+			float dv1 = varyings[1].TexCoord.Y - varyings[0].TexCoord.Y;
+			float du2 = varyings[2].TexCoord.X - varyings[0].TexCoord.X;
+			float dv2 = varyings[2].TexCoord.Y - varyings[0].TexCoord.Y;
+			float dx1 = varyings[1].FragPos.X - varyings[0].FragPos.X;
+			float dy1 = varyings[1].FragPos.Y - varyings[0].FragPos.Y;
+			float dx2 = varyings[2].FragPos.X - varyings[0].FragPos.X;
+			float dy2 = varyings[2].FragPos.Y - varyings[0].FragPos.Y;
+			float det = (dx1 * dy2 - dx2 * dy1);
+			float dudx = (du1 * dy2 - du2 * dy1) / det;
+			float dvdx = (dv1 * dy2 - dv2 * dy1) / det;
+			float dudy = (du2 * dx1 - du1 * dx2) / det;
+			float dvdy = (dv2 * dx1 - dv1 * dx2) / det;
+			uniforms.Lx = std::log2(sqrt(dudx * dudx + dvdx * dvdx));
+			uniforms.Ly = std::log2(sqrt(dudy * dudy + dvdy * dvdy));
+			//std::cout << uniforms.Lx << "  " << uniforms.Ly <<std::endl;
+		}
+
 		template<typename vertex_t, typename uniforms_t, typename varyings_t>
 		static void ProcessPixel(Framebuffer& framebuffer,
 			const int x,
@@ -151,6 +174,7 @@ namespace RGS {
 			framebuffer.MSAASetColor(x, y, color);
 		}
 
+
 		template<typename varyings_t>
 		static void LerpVaryings(varyings_t& out, const varyings_t(&varyings)[3], float(&weights)[3], const int width, const int height) {
 			out.ClipPos = varyings[0].ClipPos * weights[0] + varyings[1].ClipPos * weights[1] + varyings[2].ClipPos * weights[2];
@@ -162,18 +186,50 @@ namespace RGS {
 			out.FragPos.Z = (out.NdcPos.Z + 1.0f) * 0.5f;
 			out.FragPos.W = out.NdcPos.W;
 			
-			constexpr uint32_t floatOffset = sizeof(Vec4) * 3 / sizeof(float);//跳过前两NdcPos和FragPos
-			constexpr uint32_t floatNum = sizeof(varyings_t) / sizeof(float);
+			out.WorldPos = varyings[0].WorldPos * weights[0] +
+				varyings[1].WorldPos * weights[1] +
+				varyings[2].WorldPos * weights[2];
 
-			float* v0 = (float*)&varyings[0];
-			float* v1 = (float*)&varyings[1];
-			float* v2 = (float*)&varyings[2];
-			float* outFloat = (float*)&out;
+			out.WorldNormal = Normalize(varyings[0].WorldNormal * weights[0] +
+				varyings[1].WorldNormal * weights[1] +
+				varyings[2].WorldNormal * weights[2]);
 
-			//按照比例计算
-			for (int i = floatOffset; i < (int)floatNum; i++) {
-				outFloat[i] = v0[i] * weights[0] + v1[i] * weights[1] + v2[i] * weights[2];
-			}
+			out.TexCoord = varyings[0].TexCoord * weights[0] +
+				varyings[1].TexCoord * weights[1] +
+				varyings[2].TexCoord * weights[2];
+
+			out.CamPos = varyings[0].CamPos * weights[0] +
+				varyings[1].CamPos * weights[1] +
+				varyings[2].CamPos * weights[2];
+
+		}
+
+		template<typename varyings_t>
+		static void RayLerpVaryings(varyings_t& out, const Triangle<varyings_t>& varyings, float(&weights)[3], const int width, const int height) {
+			out.ClipPos = varyings[0].ClipPos * weights[0] + varyings[1].ClipPos * weights[1] + varyings[2].ClipPos * weights[2];
+			out.NdcPos = out.ClipPos / out.ClipPos.W;
+			out.NdcPos.W = 1.0f / out.ClipPos.W;
+
+			out.FragPos.X = (out.NdcPos.X + 1.0f) * 0.5f * width;
+			out.FragPos.Y = (out.NdcPos.Y + 1.0f) * 0.5f * height;
+			out.FragPos.Z = (out.NdcPos.Z + 1.0f) * 0.5f;
+			out.FragPos.W = out.NdcPos.W;
+
+			out.WorldPos = varyings[0].WorldPos * weights[0] +
+				varyings[1].WorldPos * weights[1] +
+				varyings[2].WorldPos * weights[2];
+
+			out.WorldNormal = Normalize(varyings[0].WorldNormal * weights[0] +
+				varyings[1].WorldNormal * weights[1] +
+				varyings[2].WorldNormal * weights[2]);
+
+			out.TexCoord = varyings[0].TexCoord * weights[0] +
+				varyings[1].TexCoord * weights[1] +
+				varyings[2].TexCoord * weights[2];
+
+			out.CamPos = varyings[0].CamPos * weights[0] +
+				varyings[1].CamPos * weights[1] +
+				varyings[2].CamPos * weights[2];
 
 		}
 
@@ -247,6 +303,50 @@ namespace RGS {
 
 			}
 
+		}
+
+		template<typename varyings_t>
+		static bool Intersect(const Ray& ray, double& t, float(&weights)[3], varyings_t& object) {
+
+			// 计算三角形的两条边
+			Vec3 E1 = object.Vertex[1].CamPos - object.Vertex[0].CamPos;
+			Vec3 E2 = object.Vertex[2].CamPos - object.Vertex[0].CamPos;
+
+			// 计算行列式
+			Vec3 P = Cross(ray.Direction(), E2);
+			double det = Dot(E1, P);
+
+			// 检查光线是否与三角形平面平行
+			if (fabs(det) < EPSILON) {
+				return false;
+			}
+
+			// 计算逆行列式
+			double invDet = 1.0 / det;
+
+			// 计算 T 向量
+			Vec3 T = ray.Origin() - object.Vertex[0].CamPos;
+
+			// 计算 barycentric weights[0]
+			weights[0] = Dot(T, P) * invDet;
+			if (weights[0] < 0.0 || weights[0] > 1.0) {
+				return false;
+			}
+
+			// 计算 Q 向量和 weights[1]
+			Vec3 Q = Cross(T, E1);
+			weights[1] = Dot(ray.Direction(), Q) * invDet;
+			if (weights[1] < 0.0 || weights[0] + weights[1] > 1.0) {
+				return false;
+			}
+
+			// 计算 weights[2] 和 t
+			weights[2] = 1.0 - weights[0] - weights[1];
+			t = Dot(E2, Q) * invDet;
+			//std::cout << "det: " << det << ", t: " << t << std::endl;
+			//std::cout << "weights[0]: " << weights[0] << ", weights[1]: " << weights[1] << ", weights[2]: " << weights[2] << std::endl;
+			// 返回相交结果
+			return t > EPSILON;
 		}
 
 
@@ -330,13 +430,73 @@ namespace RGS {
 			}
 			
 		}
-		
+
+		template<typename vertex_t, typename uniforms_t, typename varyings_t>
+		static Vec4 rayTrace(const Ray &ray,
+			uniforms_t& uniforms,
+			const Program<vertex_t, uniforms_t, varyings_t>& program,
+			Framebuffer& framebuffer,
+			std::vector< Triangle<varyings_t> > &v,
+			int depth)
+		{
+			if (depth > uniforms.MaxDepth) {
+				return Vec4(0.0f, 0.2f, 0.0f, 0.8f);
+			}
+			//检测碰撞
+				//遍历对象池
+			int ElementNum = -1;
+			double tLast = 10000;
+			double t = 0;
+			float lastweights[3];
+			float weights[3];
+			for (int i = 0; i < v.size(); ++i) {
+				if (Intersect(ray, t, weights,v[i])) {
+					if (tLast > t) {
+						tLast = t;
+						lastweights[0] = weights[0];
+						lastweights[1] = weights[1];
+						lastweights[2] = weights[2];
+						ElementNum = i;
+					}
+				}
+			}
+				//遍历光源
+			/*for (int i = 0; i < v.size(); ++i) {
+				if (Intersect(ray, t, weights,v[i])) {
+					if (tLast > t) {
+						tLast = t;
+						ElementNum = i;
+						return { 1.0f,1.0f,1.0f,0.8f };
+					}
+				}
+			}*/
+			//未检测到返回背景色
+			if (ElementNum == -1) {
+				return (0.0f, 0.2f, 0.0f, 0.8f);
+			}
+			varyings_t out;
+
+			bool discard = false;
+			RayLerpVaryings(out, v[ElementNum], lastweights, framebuffer.GetWidth(), framebuffer.GetHeight());
+			Vec4 color = program.FragmentShader(discard, out, uniforms); //初始物体颜色
+			Vec3 hitPoint = ray.Origin() + ray.Direction() * tLast;//碰撞点
+			Vec3 normal = Vec3(uniforms.MV* Vec4(out.WorldNormal,0) );
+
+			//反射		
+			Vec3 reflectDir = ray.Direction() - normal *Dot(ray.Direction(), normal) * 2;
+			Ray reflectRay = Ray(hitPoint, reflectDir);
+			Vec4 reflectColor = rayTrace(reflectRay, uniforms, program, framebuffer, v,depth + 1) * uniforms.ReflectRatio;//设置反射系数
+
+			//折射...
+			//std::cout<< (color + reflectColor).X<<std::endl;
+			return color + reflectColor;
+		}
 	public:
 		template<typename vertex_t, typename uniforms_t, typename varyings_t>
 		static void Draw(Framebuffer& framebuffer,
 			const Program<vertex_t, uniforms_t, varyings_t>& program, 
 			const Triangle<vertex_t>& triangle, 
-			const uniforms_t& uniforms) 
+			uniforms_t& uniforms)
 		{	
 			//检查是否继承自基础渲染类
 			static_assert(std::is_base_of<VaryingBase, varyings_t>::value, "varyings_t must be derived from VaryingBase");
@@ -354,16 +514,54 @@ namespace RGS {
 			int fHeight = framebuffer.GetHeight();
 			CalculateFragPos(varyings , vertexNum , fWidth, fHeight);
 
-			//按三角形拆分图片渲染下
+			//按三角形拆分图片
 			for (int i = 0; i < vertexNum - 2; ++i) {
 				varyings_t Triangle[3];
 				Triangle[0] = varyings[0];
 				Triangle[1] = varyings[i+1];
 				Triangle[2] = varyings[i+2];
-				
+				//计算梯度
+				CalculateMipmapLevel(Triangle,uniforms);
+
 				RasterizeTriangle(framebuffer, program, Triangle, uniforms);
 			}
 			FinalRasterize(framebuffer, program.DepthFunc);
+
+		}
+
+		template<typename vertex_t, typename uniforms_t, typename varyings_t>
+		static void RayTracingDraw(Framebuffer& framebuffer,
+			const Program<vertex_t, uniforms_t, varyings_t>& program,
+			const Triangle<vertex_t>& triangle,
+			uniforms_t& uniforms,
+			std::vector< Triangle<varyings_t> > &v)
+		{
+			//检查是否继承自基础渲染类
+			static_assert(std::is_base_of<VaryingBase, varyings_t>::value, "varyings_t must be derived from VaryingBase");
+			static_assert(std::is_base_of<VertexBase, vertex_t>::value, "uniforms_t must be derived from VertexBase");
+
+			varyings_t varyings[RGS_MAX_VARYINGS];
+			for (int i = 0; i < 3; i++) {
+				program.VertexShader(varyings[i], triangle[i], uniforms);
+			}
+			Triangle<varyings_t> tempTri;
+			tempTri.Vertex[0] = varyings[0];
+			tempTri.Vertex[1] = varyings[1];
+			tempTri.Vertex[2] = varyings[2];
+			v.push_back(tempTri);
+			
+			for (int x = 0;  x <= framebuffer.GetWidth() ;x++ ){
+				float i = (float)x / framebuffer.GetWidth() - 0.5f;
+				for (int y = 0; y <= framebuffer.GetHeight(); y++) {
+					
+					float j =  (float)y / framebuffer.GetHeight() - 0.5f;
+					Vec3 screenDirection = {i , j , -0.4f };
+					Ray ray = Ray({0.0f,0.0f,0.0f}, screenDirection);
+					Vec4 color = rayTrace(ray, uniforms , program , framebuffer,v, 0 );
+					framebuffer.SetColor(x, y, color);
+				}
+			}
+			//std::cout << "111" << std::endl;
 		}
 	};
 }

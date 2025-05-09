@@ -9,6 +9,15 @@ namespace RGS {
 		varyings.WorldNormal = uniforms.ModelNormalToWorld * Vec4{ vertex.ModelNormal,0.0f };
 	}
 
+	void RayTracingVertexShader(BlinnVaryings& varyings, const BlinnVertex& vertex, const BlinnUniforms& uniforms)
+	{
+		varyings.CamPos = uniforms.MV * vertex.ModelPos;
+		varyings.ClipPos = uniforms.MVP * vertex.ModelPos;
+		varyings.TexCoord = vertex.TexCoord;
+		varyings.WorldPos = uniforms.Model * vertex.ModelPos;
+		varyings.WorldNormal = uniforms.ModelNormalToWorld * Vec4{ vertex.ModelNormal,0.0f };
+	}
+
 	Vec4 BlinnFragmentShader(bool& discard, const BlinnVaryings& varyings, const BlinnUniforms& uniforms)
 	{	
 		//if (uniforms.isAnother) {
@@ -42,7 +51,6 @@ namespace RGS {
 		Vec3 specularStrength{ 1.0f,1.0f,1.0f };
 		Vec3 diffColor{ 1.0f,1.0f,1.0f };
 		if (uniforms.Diffuse && uniforms.Specular) {
-			const Vec2& texCoord = varyings.TexCoord;
 			diffColor = uniforms.Diffuse->Sample(varyings.TexCoord);
 			ambient = ambient * diffColor;
 			specularStrength = uniforms.Specular->Sample(varyings.TexCoord);
@@ -53,6 +61,11 @@ namespace RGS {
 
 		Vec3 finalColor = (ambient + diffuse + specular);
 		return { finalColor,1.0f };
+	}
+
+	Vec4 RayTracingFragmentShader(bool& discard, const BlinnVaryings& varyings, const BlinnUniforms& uniforms)
+	{
+		return Vec4();
 	}
 
 }

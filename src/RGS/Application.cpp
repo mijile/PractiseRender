@@ -57,37 +57,50 @@ namespace RGS {
 		}
 	}
 	void Application::Update(float time)
-	{
+	{	
+		m_Uniforms.ObjectPool.clear();
 		OnCameraUpdate(time);
 
 		Framebuffer framebuffer(m_Width, m_Height);
 		framebuffer.Clear({ 0.0f,0.0f,0.0f });
 		m_Window->DrawFramebuffer(framebuffer);
-		Program program(BlinnVertexShader, BlinnFragmentShader);
+		Program program(RayTracingVertexShader, BlinnFragmentShader);
+		//Program program(BlinnVertexShader, BlinnFragmentShader);
 
 
 		Mat4 model = Mat4Identity();
-		Mat4 view = LookAt(m_Camera.Pos, m_Camera.Pos + m_Camera.Dir, { 0.0f,1.0f,0.0f });
-		Mat4 proj = Perspective(90.0f / 180.0f * PI, m_Camera.Aspect, 0.1f, 100.0f);
+		Mat4 view = LookAt(m_Camera.Pos, m_Camera.Pos + m_Camera.Dir, m_Camera.Up);
+		Mat4 proj = Perspective(90.0f / 180.0f * PI, m_Camera.Aspect, 0.5f, 100.0f);
 		m_Uniforms.MVP = proj * view * model;
+		m_Uniforms.MV = view * model;
 		m_Uniforms.CameraPos = m_Camera.Pos;
 		m_Uniforms.Model = model;
 		m_Uniforms.ModelNormalToWorld = Mat4Identity();
 		m_Uniforms.isAnother = true;
 
 		program.EnableBlend = false;
-		program.EnableDoubleSided = true;
+		program.EnableDoubleSided =false;
 		program.EnableWriteDepth = true;
 
-		
+	/*	Triangle<BlinnVaryings> triangle;
+		m_Uniforms.isAnother = false;
+		program.EnableBlend = true;
+		program.EnableDoubleSided = true;
+		program.EnableWriteDepth = false;
+		triangle[0].WorldPos = { -10.0f,10.0f,-10.0f};
+		triangle[1].WorldPos = { -10.0f,-10.0f,-10.0f};
+		triangle[2].WorldPos = { 1.0f,-1.0f,-1.0f};*/
+
+
+		//m_Uniforms.LightPool.push_back(triangle);
 
 
 		for (auto tri : m_Mesh){
-			Renderer::Draw(framebuffer, program, tri, m_Uniforms);
+			Renderer::RayTracingDraw(framebuffer, program, tri, m_Uniforms,m_Uniforms.ObjectPool);
 		}
 
-		/*
-		Triangle<BlinnVertex> triangle;
+		
+		/*Triangle<BlinnVertex> triangle;
 		m_Uniforms.isAnother = false;
 		program.EnableBlend = true;
 		program.EnableDoubleSided = true;
@@ -95,9 +108,8 @@ namespace RGS {
 		triangle[0].ModelPos = { -10.0f,10.0f,-10.0f,1.0f };
 		triangle[1].ModelPos = { -10.0f,-10.0f,-10.0f,1.0f };
 		triangle[2].ModelPos = { 1.0f,-1.0f,-1.0f,1.0f };
-		Renderer::Draw(framebuffer, program, triangle, m_Uniforms);*/
-
-		
+		Renderer::RayTracingDraw(framebuffer, program, triangle, m_Uniforms, m_Uniforms.ObjectPool);
+		*/
 		m_Window->DrawFramebuffer(framebuffer);
 	}
 	void Application::OnCameraUpdate(float time)
@@ -126,6 +138,7 @@ namespace RGS {
 		m_Camera.Dir = Vec4(NormalizeToVec3(m_Camera.Dir), 0.0f);
 		m_Camera.Right = rotation * m_Camera.Right;
 		m_Camera.Right = Vec4(NormalizeToVec3(m_Camera.Right), 0.0f);
+		//std::cout << m_Camera.Pos.X << m_Camera.Pos.Y << m_Camera.Pos.Z << std::endl;
 
 	}
 	void Application::LoadMesh(const char* fileName)
@@ -146,25 +159,28 @@ namespace RGS {
 			std::getline(file, line);
 			int items = -1;
 			if (line.find("v ") == 0) {
+				//存顶点坐标
 				Vec3 pos;
 				items = sscanf_s(line.c_str(), "v %f %f %f", &pos.X, &pos.Y, &pos.Z);
 				ASSERT(items == 3);
 				positions.push_back(pos);
 			}
 			else if (line.find("vt ") == 0) {
+				//存纹理坐标
 				Vec2 texcoord;
 				items = sscanf_s(line.c_str(), "vt %f %f", &texcoord.X, &texcoord.Y);
 				ASSERT(items == 2);
 				texCoords.push_back(texcoord);
 			}
 			else if (line.find("vn ") == 0) {
+				//存法线
 				Vec3 normal;
 				items = sscanf_s(line.c_str(), "vn %f %f %f", &normal.X, &normal.Y, &normal.Z);
 				ASSERT(items == 3);
 				normals.push_back(normal);
 			}
 			else if (line.find("f ") == 0) {
-				//存三角形对于的顶点索引
+				//存三角形对应的顶点索引
 				int posIndex[3], uvIndices[3], normalIndex[3];
 				items = sscanf_s(line.c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d",
 					&posIndex[0], &uvIndices[0], &normalIndex[0],

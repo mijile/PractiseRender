@@ -31,6 +31,9 @@
     <ClCompile Include="D:\PractiseRender\src\RGS\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\PractiseRender\src\RGS\Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D:\PractiseRender\src\RGS\Application.h">
@@ -55,6 +58,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\PractiseRender\src\Shader\ShaderBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
