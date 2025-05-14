@@ -1,2 +1,6 @@
 ﻿  Application.cpp
+  Main.cpp
+  Renderer.cpp
+  BlinnShader.cpp
+  正在生成代码...
   RGS.vcxproj -> D:\PractiseRender\build\Debug\RGS.exe

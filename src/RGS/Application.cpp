@@ -29,6 +29,8 @@ namespace RGS {
 		m_lastFrameTime = std::chrono::steady_clock::now();
 
 		LoadMesh("D:\\PractiseRender\\Assets\\box.obj");
+		//读取obj后调整包围盒
+
 
 		m_Uniforms.Diffuse = new Texture("D:\\PractiseRender\\Assets\\container2.png");
 		m_Uniforms.Specular = new Texture("D:\\PractiseRender\\Assets\\container2_specular.png");
@@ -78,6 +80,8 @@ namespace RGS {
 		m_Uniforms.ModelNormalToWorld = Mat4Identity();
 		m_Uniforms.isAnother = true;
 
+		m_Mesh.setBoundingBox(m_Uniforms.MV);
+
 		program.EnableBlend = false;
 		program.EnableDoubleSided =false;
 		program.EnableWriteDepth = true;
@@ -95,7 +99,8 @@ namespace RGS {
 		//m_Uniforms.LightPool.push_back(triangle);
 
 
-		for (auto tri : m_Mesh){
+		for (auto tri : m_Mesh.MeshData){
+			tri.refractiveIndex = 1.3f;
 			Renderer::RayTracingDraw(framebuffer, program, tri, m_Uniforms,m_Uniforms.ObjectPool);
 			//Renderer::Draw(framebuffer, program, tri, m_Uniforms);
 		}
@@ -209,7 +214,7 @@ namespace RGS {
 				tri[j].TexCoord = texCoords[texIndex];
 				tri[j].ModelNormal = normals[nIndex];
 			}
-			m_Mesh.emplace_back(tri);
+			m_Mesh.MeshData.emplace_back(tri);
 		}
 	}
 

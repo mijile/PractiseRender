@@ -8,7 +8,6 @@ namespace RGS {
 	struct BlinnVertex : public VertexBase {
 		Vec3 ModelNormal;
 		Vec2 TexCoord = { 0.0f,0.0f };
-
 	};
 
 	struct BlinnVaryings : public VaryingBase {
@@ -41,6 +40,16 @@ namespace RGS {
 
 		float Shininess = 32.0f;//高光系数
 		bool isAnother = false;
+	};
+
+	struct Mesh {
+		//三角形面数据
+		std::vector<Triangle<BlinnVertex> > MeshData;
+		//包围盒
+		Vec3 minLoc = { 0,0,0 };
+		Vec3 maxLoc = { 0,0,0 };
+
+		void setBoundingBox(Mat4 MV);
 	};
 
 	void BlinnVertexShader(BlinnVaryings& varyings, const BlinnVertex& vertex, const BlinnUniforms& uniforms);

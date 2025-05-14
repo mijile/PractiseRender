@@ -36,7 +36,7 @@ namespace RGS {
 		Window* m_Window;
 		Camera m_Camera;
 
-		std::vector<Triangle<BlinnVertex> > m_Mesh;
+		Mesh m_Mesh;
 
 		BlinnUniforms m_Uniforms;
 	};

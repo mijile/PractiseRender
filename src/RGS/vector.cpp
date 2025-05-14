@@ -233,4 +233,23 @@ namespace RGS {
 	{
 		return start * (1.0f - ratio) + end * ratio;
 	}
+
+	float Fresnel(float cosTheta, float eta) {
+		float r0 = (1.0f - eta) / (1.0f + eta);
+		r0 = r0 * r0;
+		return r0 + (1.0f - r0) * pow(1.0f - cosTheta, 5.0f);
+	}
+	bool Refract(const Vec3& I, const Vec3& N, float eta, Vec3& refractedDir) {
+		float cosTheta = std::max(-1.0f, std::min(1.0f, Dot(I*-1, N)));
+		float sinTheta2 = eta * eta * (1.0f - cosTheta * cosTheta);
+
+		// 检查是否发生全内反射
+		if (sinTheta2 > 1.0f) {
+			return false; // 无法折射
+		}
+
+		float cosTheta2 = sqrt(1.0f - sinTheta2);
+		refractedDir = I * eta + N * (eta * cosTheta - cosTheta2);
+		return true;
+	}
 }

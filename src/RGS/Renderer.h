@@ -15,7 +15,7 @@ namespace RGS {
 		//static_assert(std::is_base_of<VertexBase, vertex_t>::value, "vertex_t must be derived from VertexBase");
 		
 		vertex_t Vertex[3];
-
+		float refractiveIndex = 1.0f;
 		vertex_t& operator[](int i) {
 			return Vertex[i];
 		}
@@ -439,7 +439,8 @@ namespace RGS {
 			const Program<vertex_t, uniforms_t, varyings_t>& program,
 			Framebuffer& framebuffer,
 			std::vector< Triangle<varyings_t> > &v,
-			int depth)
+			int depth,
+			float lastIndex)
 		{
 			if (depth > uniforms.MaxDepth) {
 				return Vec4(0.0f, 0.2f, 0.0f, 0.8f);
@@ -483,15 +484,34 @@ namespace RGS {
 			Vec4 color = program.FragmentShader(discard, out, uniforms); //初始物体颜色
 			Vec3 hitPoint = ray.Origin() + ray.Direction() * tLast;//碰撞点
 			Vec3 normal = Vec3(uniforms.MV* Vec4(out.WorldNormal,0) );
+			float eta = lastIndex / v[ElementNum].refractiveIndex;
+			
+			Vec3 refractedDir;
+
+			bool canRefract = Refract(ray.Direction(), normal, eta, refractedDir);
+			if (lastIndex == v[ElementNum].refractiveIndex) {
+				//若两者折射率相同，则说明是从物体内往外空气射出
+				eta = lastIndex;
+				return color;
+			}
+			// 计算菲涅尔反射率
+			float fresnel = Fresnel(Dot(ray.Direction() * -1, normal), eta);
 
 			//反射		
 			Vec3 reflectDir = ray.Direction() - normal *Dot(ray.Direction(), normal) * 2;
 			Ray reflectRay = Ray(hitPoint, reflectDir);
-			Vec4 reflectColor = rayTrace(reflectRay, uniforms, program, framebuffer, v,depth + 1) * uniforms.ReflectRatio;//设置反射系数
+			Vec4 reflectColor = rayTrace(reflectRay, uniforms, program, framebuffer, v,depth + 1 , lastIndex) * fresnel;//设置反射系数
 
+			
 			//折射...
-			//std::cout<< (color + reflectColor).X<<std::endl;
-			return color + reflectColor;
+			Vec4 refractColor = {0, 0, 0, 0};
+			/*if (canRefract) {
+				Ray refractRay = Ray(hitPoint, refractedDir);
+				refractColor = rayTrace(refractRay, uniforms, program, framebuffer, v, depth + 1, v[ElementNum].refractiveIndex) * (1.0f - fresnel);
+			}*/
+
+
+			return color + reflectColor + refractColor;
 		}
 	public:
 		template<typename vertex_t, typename uniforms_t, typename varyings_t>
@@ -547,6 +567,7 @@ namespace RGS {
 				program.VertexShader(varyings[i], triangle[i], uniforms);
 			}
 			Triangle<varyings_t> tempTri;
+			tempTri.refractiveIndex = triangle.refractiveIndex;
 			tempTri.Vertex[0] = varyings[0];
 			tempTri.Vertex[1] = varyings[1];
 			tempTri.Vertex[2] = varyings[2];
@@ -559,7 +580,7 @@ namespace RGS {
 					float j =  (float)y / framebuffer.GetHeight() - 0.5f;
 					Vec3 screenDirection = {i , j , -0.4f };
 					Ray ray = Ray({0.0f,0.0f,0.0f}, screenDirection);
-					Vec4 color = rayTrace(ray, uniforms , program , framebuffer,v, 0 );
+					Vec4 color = rayTrace(ray, uniforms , program , framebuffer,v, 0,1.0f );
 					framebuffer.SetColor(x, y, color);
 				}
 			}

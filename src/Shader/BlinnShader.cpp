@@ -69,5 +69,22 @@ namespace RGS {
 		return Vec4();
 	}
 
+	void Mesh::setBoundingBox(Mat4 MV)
+	{
+		minLoc = { 10000.0f,10000.0f,10000.0f };
+		maxLoc = { -10000.0f,-10000.0f,-10000.0f };
+		for (auto& tri : MeshData) {
+			for (int i = 0; i < 3; i++) {
+				Vec4 temp = (MV * tri[i].ModelPos);
+				minLoc.X = std::min(minLoc.X, temp.X);
+				minLoc.Y = std::min(minLoc.Y, temp.Y);
+				minLoc.Z = std::min(minLoc.Z, temp.Z);
+				maxLoc.X = std::max(maxLoc.X, temp.X);
+				maxLoc.Y = std::max(maxLoc.Y, temp.Y);
+				maxLoc.Z = std::max(maxLoc.Z, temp.Z);
+			}
+		}
+	}
+
 }
 

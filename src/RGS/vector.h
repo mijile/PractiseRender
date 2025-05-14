@@ -288,6 +288,8 @@ namespace RGS {
 	float Lerp(const float start, const float end, const float ratio);
 	Vec3 Lerp(const Vec3& start, const Vec3& end, const float ratio);
 	Vec4 Lerp(const Vec4& start, const Vec4& end, const float ratio);
+	float Fresnel(float cosTheta, float eta);
+	bool Refract(const Vec3& I, const Vec3& N, float eta, Vec3& refractedDir);
 
 	extern unsigned char Float2UChar(const float f);
 	extern float UChar2Float(const unsigned char c);
