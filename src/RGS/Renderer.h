@@ -5,28 +5,13 @@
 #include "Framebuffer.h"
 #include "Base.h"
 #include "Ray.h"
+#include "KDTree.h"
 #include <vector>
 
 
 namespace RGS {
 
-	template<typename vertex_t>
-	struct Triangle {
-		//static_assert(std::is_base_of<VertexBase, vertex_t>::value, "vertex_t must be derived from VertexBase");
-		
-		vertex_t Vertex[3];
-		float refractiveIndex = 1.0f;
-		vertex_t& operator[](int i) {
-			return Vertex[i];
-		}
-		const vertex_t& operator[](int i) const {
-			return Vertex[i];
-		}
-		
-		Triangle() = default;
 	
-	
-	};
 
 	enum class DepthFuncType {
 		LESS,
@@ -51,6 +36,26 @@ namespace RGS {
 
 		Program(const vertex_shader_t vertexShader , const fragment_shader_t fragmentShader) 
 			: VertexShader(vertexShader) , FragmentShader(fragmentShader){}
+	};
+
+	template<typename vertex_t, typename uniforms_t>
+	struct RayTProgram {
+		bool EnableDoubleSided = false;
+		bool EnableDepthTest = true;
+		bool EnableBlend = true;
+		bool EnableWriteDepth = true;
+		DepthFuncType DepthFunc = DepthFuncType::LESS;
+		//顶点着色器
+		using vertex_shader_t = void (*)(vertex_t&, const uniforms_t&);
+		vertex_shader_t VertexShader;
+
+		//片段着色器
+		using fragment_shader_t = Vec4(*)(bool& discard, const vertex_t&, const uniforms_t&);
+		fragment_shader_t FragmentShader;
+
+		RayTProgram(const vertex_shader_t vertexShader, const fragment_shader_t fragmentShader)
+			: VertexShader(vertexShader), FragmentShader(fragmentShader) {
+		}
 	};
 
 	class Renderer{
@@ -206,14 +211,6 @@ namespace RGS {
 
 		template<typename varyings_t>
 		static void RayLerpVaryings(varyings_t& out, const Triangle<varyings_t>& varyings, float(&weights)[3], const int width, const int height) {
-			out.ClipPos = varyings[0].ClipPos * weights[0] + varyings[1].ClipPos * weights[1] + varyings[2].ClipPos * weights[2];
-			out.NdcPos = out.ClipPos / out.ClipPos.W;
-			out.NdcPos.W = 1.0f / out.ClipPos.W;
-
-			out.FragPos.X = (out.NdcPos.X + 1.0f) * 0.5f * width;
-			out.FragPos.Y = (out.NdcPos.Y + 1.0f) * 0.5f * height;
-			out.FragPos.Z = (out.NdcPos.Z + 1.0f) * 0.5f;
-			out.FragPos.W = out.NdcPos.W;
 
 			out.WorldPos = varyings[0].WorldPos * weights[0] +
 				varyings[1].WorldPos * weights[1] +
@@ -309,8 +306,8 @@ namespace RGS {
 		static bool Intersect(const Ray& ray, double& t, float(&weights)[3], varyings_t& object) {
 
 			// 计算三角形的两条边
-			Vec3 E1 = object.Vertex[1].CamPos - object.Vertex[0].CamPos;
-			Vec3 E2 = object.Vertex[2].CamPos - object.Vertex[0].CamPos;
+			Vec3 E1 = object.Vertex[1].WorldPos - object.Vertex[0].WorldPos;
+			Vec3 E2 = object.Vertex[2].WorldPos - object.Vertex[0].WorldPos;
 
 			// 计算行列式
 			Vec3 P = Cross(ray.Direction(), E2);
@@ -325,7 +322,7 @@ namespace RGS {
 			double invDet = 1.0 / det;
 
 			// 计算 T 向量
-			Vec3 T = ray.Origin() - object.Vertex[0].CamPos;
+			Vec3 T = ray.Origin() - object.Vertex[0].WorldPos;
 
 			// 计算 barycentric weights[0]
 			weights[1] = Dot(T, P) * invDet;
@@ -351,6 +348,7 @@ namespace RGS {
 			return t > EPSILON;
 		}
 
+		
 
 		template<typename varyings_t>
 		static int Clip(varyings_t(&varyings)[RGS_MAX_VARYINGS]) {
@@ -433,63 +431,128 @@ namespace RGS {
 			
 		}
 
-		template<typename vertex_t, typename uniforms_t, typename varyings_t>
-		static Vec4 rayTrace(const Ray &ray,
+		template<typename vertex_t, typename uniforms_t>
+		static Vec4 rayTrace(const Ray& ray,
 			uniforms_t& uniforms,
-			const Program<vertex_t, uniforms_t, varyings_t>& program,
+			const RayTProgram<vertex_t, uniforms_t>& program,
 			Framebuffer& framebuffer,
-			std::vector< Triangle<varyings_t> > &v,
 			int depth,
 			float lastIndex)
 		{
 			if (depth > uniforms.MaxDepth) {
-				return Vec4(0.0f, 0.2f, 0.0f, 0.8f);
+				return Vec4(0.0f, 0.0f, 0.5f, 0.8f);
 			}
 			//检测碰撞
-				//遍历对象池
-			int ElementNum = -1;
-			double tLast = 10000;
-			double t = 0;
-			float lastweights[3];
-			float weights[3];
-			for (int i = 0; i < v.size(); ++i) {
-				if (Intersect(ray, t, weights,v[i])) {
-					if (tLast > t) {
-						tLast = t;
-						lastweights[0] = weights[0];
-						lastweights[1] = weights[1];
-						lastweights[2] = weights[2];
-						ElementNum = i;
-					}
-				}
-			}
-				//遍历光源
-			/*for (int i = 0; i < v.size(); ++i) {
-				if (Intersect(ray, t, weights,v[i])) {
-					if (tLast > t) {
-						tLast = t;
-						ElementNum = i;
-						return { 1.0f,1.0f,1.0f,0.8f };
-					}
-				}
-			}*/
+				//遍历KDTree查找
+			double tBox = 10000;
+			KDNode* purNode = HitBox(uniforms.kdTree, ray,tBox);
+			/*std:: cout << tBox << std::endl;
+			system("pause");*/
 			//未检测到返回背景色
-			if (ElementNum == -1) {
-				return (0.0f, 0.2f, 0.0f, 0.8f);
+			if (purNode == nullptr) {
+				return Vec4(0.0f, 0.0f, 0.5f, 0.8f);// 蓝
 			}
-			varyings_t out;
+			//存在子节点与光线相交，再遍历子节点内的三角形。
+			double boxTLast = 10000;
+			double boxT = 10000;
+			double tLast = 10000;
+			float weights[3];
+			int meshNo = -1;
+			int meshNum = -1;
+			int triNo = -1;
+			for (auto mesh : purNode->meshGroup) {
+				meshNum++;
+				//判断碰撞盒
+				bool isHitBox = false;
+				isHitBox = HitBox(ray, boxTLast, mesh);
+				if (isHitBox && boxTLast < boxT) {
+					boxT = boxTLast;
+					meshNo = meshNum;
+				}
+			}
+			//未检测到返回背景色
+			if (meshNo == -1) {
+				return Vec4(0.5f, 0.0f, 0.0f, 0.8f);//红
+			}
+			//?如果距离近的包围盒未碰撞到里面的三角形，还需要再遍历多一遍吗
+			if (meshNo != -1) {
+				for (int i = 0; i < purNode->meshGroup[meshNo].MeshData.size(); ++i) {
+					double tempT = tLast;
+					float tempweights[3];
+					bool isHitBoxTri = Intersect(ray, tempT, tempweights, purNode->meshGroup[meshNo].MeshData[i]);
+					if (isHitBoxTri) {
+						if (tempT < tLast) {
+							tLast = tempT;
+							lastIndex = purNode->meshGroup[meshNo].MeshData[i].refractiveIndex;
+							triNo = i;
+							weights[0] = tempweights[0];
+							weights[1] = tempweights[1];
+							weights[2] = tempweights[2];
+						}
+					}
+				}
+			}
+			////未检测到返回背景色
+			//if (triNo == -1) {
+			//	boxTLast = 10000;
+			//	boxT = 10000;
+			//	tLast = 10000;
+			//	weights[3];
+			//	meshNum = -1;
+			//	triNo = -1;
+			//	int lastMeshNo = meshNo;
+			//	meshNo = -1;
+			//	for (auto mesh : purNode->meshGroup) {				
+			//		meshNum++;
+			//		if (meshNum == lastMeshNo)continue;
+			//		//判断碰撞盒
+			//		bool isHitBox = false;
+			//		isHitBox = HitBox(ray, boxTLast, mesh);
+			//		if (isHitBox && boxTLast < boxT) {
+			//			boxT = boxTLast;
+			//			meshNo = meshNum;
+			//		}
+			//	}
+			//	//未检测到返回背景色
+			//	if (meshNo == -1) {
+			//		return  Vec4(0.5f, 0.0f, 0.0f, 0.8f);//红
+			//	}
+			//	//?如果距离近的包围盒未碰撞到里面的三角形，还需要再遍历多一遍吗
+			//	if (meshNo != -1) {
+			//		for (int i = 0; i < purNode->meshGroup[meshNo].MeshData.size(); ++i) {
+			//			double tempT = tLast;
+			//			float tempweights[3];
+			//			bool isHitBoxTri = Intersect(ray, tempT, tempweights, purNode->meshGroup[meshNo].MeshData[i]);
+			//			if (isHitBoxTri) {
+			//				if (tempT < tLast) {
+			//					tLast = tempT;
+			//					lastIndex = purNode->meshGroup[meshNo].MeshData[i].refractiveIndex;
+			//					triNo = i;
+			//					weights[0] = tempweights[0];
+			//					weights[1] = tempweights[1];
+			//					weights[2] = tempweights[2];
+			//				}
+			//			}
+			//		}
+			//	}
+			//}
+			if (triNo == -1) {
+				return Vec4(0.0f, 0.5f, 0.0f, 0.8f);//绿
+			}
+			vertex_t out;
 
 			bool discard = false;
-			RayLerpVaryings(out, v[ElementNum], lastweights, framebuffer.GetWidth(), framebuffer.GetHeight());
+			RayLerpVaryings(out, purNode->meshGroup[meshNo].MeshData[triNo], weights, framebuffer.GetWidth(), framebuffer.GetHeight());
 			Vec4 color = program.FragmentShader(discard, out, uniforms); //初始物体颜色
 			Vec3 hitPoint = ray.Origin() + ray.Direction() * tLast;//碰撞点
 			Vec3 normal = Vec3(uniforms.MV* Vec4(out.WorldNormal,0) );
-			float eta = lastIndex / v[ElementNum].refractiveIndex;
+			float refractiveIndex = purNode->meshGroup[meshNo].MeshData[triNo].refractiveIndex;
+			float eta = lastIndex / refractiveIndex;
 			
 			Vec3 refractedDir;
 
 			bool canRefract = Refract(ray.Direction(), normal, eta, refractedDir);
-			if (lastIndex == v[ElementNum].refractiveIndex) {
+			if (lastIndex == refractiveIndex) {
 				//若两者折射率相同，则说明是从物体内往外空气射出
 				eta = lastIndex;
 				return color;
@@ -500,15 +563,15 @@ namespace RGS {
 			//反射		
 			Vec3 reflectDir = ray.Direction() - normal *Dot(ray.Direction(), normal) * 2;
 			Ray reflectRay = Ray(hitPoint, reflectDir);
-			Vec4 reflectColor = rayTrace(reflectRay, uniforms, program, framebuffer, v,depth + 1 , lastIndex) * fresnel;//设置反射系数
+			Vec4 reflectColor = rayTrace(reflectRay, uniforms, program, framebuffer,depth + 1 , lastIndex) * fresnel;//设置反射系数
 
 			
 			//折射...
 			Vec4 refractColor = {0, 0, 0, 0};
-			/*if (canRefract) {
+			if (canRefract) {
 				Ray refractRay = Ray(hitPoint, refractedDir);
-				refractColor = rayTrace(refractRay, uniforms, program, framebuffer, v, depth + 1, v[ElementNum].refractiveIndex) * (1.0f - fresnel);
-			}*/
+				refractColor = rayTrace(refractRay, uniforms, program, framebuffer,depth + 1, refractiveIndex) * (1.0f - fresnel);
+			}
 
 
 			return color + reflectColor + refractColor;
@@ -551,18 +614,15 @@ namespace RGS {
 
 		}
 
-		template<typename vertex_t, typename uniforms_t, typename varyings_t>
+		template<typename vertex_t, typename uniforms_t>
 		static void RayTracingDraw(Framebuffer& framebuffer,
-			const Program<vertex_t, uniforms_t, varyings_t>& program,
-			const Triangle<vertex_t>& triangle,
-			uniforms_t& uniforms,
-			std::vector< Triangle<varyings_t> > &v)
+			const RayTProgram<vertex_t, uniforms_t>& program,
+			uniforms_t& uniforms)
 		{
 			//检查是否继承自基础渲染类
-			static_assert(std::is_base_of<VaryingBase, varyings_t>::value, "varyings_t must be derived from VaryingBase");
 			static_assert(std::is_base_of<VertexBase, vertex_t>::value, "uniforms_t must be derived from VertexBase");
 
-			varyings_t varyings[RGS_MAX_VARYINGS];
+			/*varyings_t varyings[RGS_MAX_VARYINGS];
 			for (int i = 0; i < 3; i++) {
 				program.VertexShader(varyings[i], triangle[i], uniforms);
 			}
@@ -571,7 +631,7 @@ namespace RGS {
 			tempTri.Vertex[0] = varyings[0];
 			tempTri.Vertex[1] = varyings[1];
 			tempTri.Vertex[2] = varyings[2];
-			v.push_back(tempTri);
+			v.push_back(tempTri);*/
 			
 			for (int x = 0;  x <= framebuffer.GetWidth() ;x++ ){
 				float i = (float)x / framebuffer.GetWidth() - 0.5f;
@@ -579,12 +639,28 @@ namespace RGS {
 					
 					float j =  (float)y / framebuffer.GetHeight() - 0.5f;
 					Vec3 screenDirection = {i , j , -0.4f };
-					Ray ray = Ray({0.0f,0.0f,0.0f}, screenDirection);
-					Vec4 color = rayTrace(ray, uniforms , program , framebuffer,v, 0,1.0f );
+					Ray ray = Ray(uniforms.CameraPos, screenDirection);
+					Vec4 color = rayTrace(ray, uniforms , program , framebuffer, 0,1.0f );
 					framebuffer.SetColor(x, y, color);
 				}
 			}
 			//std::cout << "111" << std::endl;
+		}
+
+
+		template<typename vertex_t, typename uniforms_t>
+		static void RayTracingPreDeal(Framebuffer& framebuffer,
+			const RayTProgram<vertex_t, uniforms_t>& program,
+			uniforms_t& uniforms,
+			Triangle<vertex_t>& tri)
+		{
+			//检查是否继承自基础渲染类
+			static_assert(std::is_base_of<VertexBase, vertex_t>::value, "uniforms_t must be derived from VertexBase");
+
+			for (int i = 0; i < 3; i++) {
+				program.VertexShader(tri[i],uniforms);
+			}
+
 		}
 	};
 }

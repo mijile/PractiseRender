@@ -9,6 +9,7 @@
 #include <chrono>
 #include <fstream>
 #include <vector>
+#include "KDTree.h"
 #include <filesystem>
 
 namespace RGS {
@@ -28,9 +29,9 @@ namespace RGS {
 		m_Window = Window::Create(m_Name, m_Width, m_Height);
 		m_lastFrameTime = std::chrono::steady_clock::now();
 
-		LoadMesh("D:\\PractiseRender\\Assets\\box.obj");
-		//读取obj后调整包围盒
-
+		LoadMesh("D:\\PractiseRender\\Assets\\box.obj", { 0,0,0 });
+		LoadMesh("D:\\PractiseRender\\Assets\\box.obj" , {1,1,1});
+		LoadMesh("D:\\PractiseRender\\Assets\\box.obj", { -1,1,1 });
 
 		m_Uniforms.Diffuse = new Texture("D:\\PractiseRender\\Assets\\container2.png");
 		m_Uniforms.Specular = new Texture("D:\\PractiseRender\\Assets\\container2_specular.png");
@@ -60,13 +61,12 @@ namespace RGS {
 	}
 	void Application::Update(float time)
 	{	
-		m_Uniforms.ObjectPool.clear();
 		OnCameraUpdate(time);
 
 		Framebuffer framebuffer(m_Width, m_Height);
 		framebuffer.Clear({ 0.0f,0.0f,0.0f });
 		m_Window->DrawFramebuffer(framebuffer);
-		Program program(RayTracingVertexShader, BlinnFragmentShader);
+		RayTProgram rayTProgram(RayTracingVertexShader, RayTracingFragmentShader);
 		//Program program(BlinnVertexShader, BlinnFragmentShader);
 
 
@@ -77,16 +77,9 @@ namespace RGS {
 		m_Uniforms.MV = view * model;
 		m_Uniforms.CameraPos = m_Camera.Pos;
 		m_Uniforms.Model = model;
-		m_Uniforms.ModelNormalToWorld = Mat4Identity();
 		m_Uniforms.isAnother = true;
 
-		m_Mesh.setBoundingBox(m_Uniforms.MV);
-
-		program.EnableBlend = false;
-		program.EnableDoubleSided =false;
-		program.EnableWriteDepth = true;
-
-	/*	Triangle<BlinnVaryings> triangle;
+		/*	Triangle<BlinnVaryings> triangle;
 		m_Uniforms.isAnother = false;
 		program.EnableBlend = true;
 		program.EnableDoubleSided = true;
@@ -95,16 +88,44 @@ namespace RGS {
 		triangle[1].WorldPos = { -10.0f,-10.0f,-10.0f};
 		triangle[2].WorldPos = { 1.0f,-1.0f,-1.0f};*/
 
+		
 
-		//m_Uniforms.LightPool.push_back(triangle);
-
-
-		for (auto tri : m_Mesh.MeshData){
-			tri.refractiveIndex = 1.3f;
-			Renderer::RayTracingDraw(framebuffer, program, tri, m_Uniforms,m_Uniforms.ObjectPool);
-			//Renderer::Draw(framebuffer, program, tri, m_Uniforms);
+		for(auto& mesh : Geos)
+		{	
+			m_Uniforms.Model = mesh.Model;
+			m_Uniforms.MVP = proj * view * m_Uniforms.Model;
+			m_Uniforms.MV = view * m_Uniforms.Model;
+			for (auto& tri : mesh.MeshData) {
+				tri.refractiveIndex = 1.3f;
+				//Renderer::RayTracingDraw(framebuffer, program, tri, m_Uniforms, m_Uniforms.ObjectPool);
+				//Renderer::Draw(framebuffer, program, tri, m_Uniforms);
+				
+				//处理好每个三角形
+				Renderer::RayTracingPreDeal(framebuffer, rayTProgram, m_Uniforms, tri);
+			}
+			mesh.setBoundingBox();
 		}
+		//m_Uniforms.LightPool.push_back(triangle);
+		m_Uniforms.kdTree = BuildKDTree(Geos, 0);
+		KDNode* st = m_Uniforms.kdTree;
 
+		/*std::cout << st->minLoc[0] << st->minLoc[1] << st->minLoc[2] << " " << st->maxLoc[0] << st->maxLoc[1] << st->maxLoc[2] << std::endl;
+		while (st != nullptr) {
+			if (st->left != nullptr) {
+				st = st->left;
+				std::cout << st->minLoc[0] << st->minLoc[1] << st->minLoc[2] << " " << st->maxLoc[0] << st->maxLoc[1] << st->maxLoc[2] << std::endl;
+			}
+			else if (st->right != nullptr) {
+				st = st->right;
+				std::cout << st->minLoc[0] << st->minLoc[1] << st->minLoc[2] << " " << st->maxLoc[0] << st->maxLoc[1] << st->maxLoc[2] << std::endl;
+			}
+			else {
+				st = nullptr;
+			}
+		}
+		system("pause");*/
+		//光线追踪
+		Renderer::RayTracingDraw(framebuffer, rayTProgram, m_Uniforms);
 		
 		/*Triangle<BlinnVertex> triangle;
 		m_Uniforms.isAnother = false;
@@ -144,15 +165,18 @@ namespace RGS {
 		m_Camera.Dir = Vec4(NormalizeToVec3(m_Camera.Dir), 0.0f);
 		m_Camera.Right = rotation * m_Camera.Right;
 		m_Camera.Right = Vec4(NormalizeToVec3(m_Camera.Right), 0.0f);
+		m_Uniforms.CameraPos = m_Camera.Pos;
 		//std::cout << m_Camera.Pos.X << m_Camera.Pos.Y << m_Camera.Pos.Z << std::endl;
 
 	}
-	void Application::LoadMesh(const char* fileName)
+	void Application::LoadMesh(const char* fileName, Vec3 offset={0,0,0})
 	{
 		std::ifstream file(fileName);
 		std::cout << fileName << std::filesystem::current_path()<< std::endl;
 		ASSERT(file);
 
+		Mesh tempMesh;
+		tempMesh.Model = Mat4Translate(offset.X,offset.Y,offset.Z);
 		std::vector<Vec3> positions;
 		std::vector<Vec2> texCoords;
 		std::vector<Vec3> normals;
@@ -204,18 +228,20 @@ namespace RGS {
 
 		int triNum = posIndices.size() / 3;
 		for (int i = 0; i < triNum; ++i) {
-			Triangle<BlinnVertex> tri;
+			//这里注意切换光追或者blinn要更换
+			Triangle<RayTVertex> tri;
 			for (int j = 0; j < 3; ++j) {
 				int index = 3 * i + j;
 				int posIndex = posIndices[index];
 				int texIndex = texIndices[index];
 				int nIndex = normalIndices[index];
-				tri[j].ModelPos = { positions[posIndex],1.0f };
+				tri[j].ModelPos = { positions[posIndex] + offset,1.0f };
 				tri[j].TexCoord = texCoords[texIndex];
 				tri[j].ModelNormal = normals[nIndex];
 			}
-			m_Mesh.MeshData.emplace_back(tri);
+			tempMesh.MeshData.emplace_back(tri);
 		}
+		Geos.push_back(tempMesh);
 	}
 
 }

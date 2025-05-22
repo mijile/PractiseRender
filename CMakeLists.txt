@@ -8,6 +8,7 @@ set(SOURCES
     "src/RGS/main.cpp"
     "src/RGS/Application.cpp"
     "src/RGS/Application.h"
+    "src/RGS/Base.h"
     "src/RGS/Window.cpp"
     "src/RGS/Window.h"
     "src/RGS/WindowsWindow.cpp"
@@ -25,6 +26,11 @@ set(SOURCES
     "src/RGS/Texture.h"
     "src/RGS/Ray.h"
     "src/RGS/Ray.cpp"
+    "src/RGS/KDTree.h"
+    "src/RGS/KDTree.cpp"
+    "src/RGS/Mesh.h"
+    "src/RGS/Light.h"
+
 )
 
 add_executable(RGS ${SOURCES})

@@ -1,6 +1,15 @@
-﻿  Application.cpp
+﻿  Building Custom Rule D:/PractiseRender/CMakeLists.txt
+  stb_image.cpp
   Main.cpp
+  Application.cpp
+  Window.cpp
+  WindowsWindow.cpp
+  Framebuffer.cpp
+  vector.cpp
   Renderer.cpp
   BlinnShader.cpp
+  Texture.cpp
+  Ray.cpp
+  KDTree.cpp
   正在生成代码...
   RGS.vcxproj -> D:\PractiseRender\build\Debug\RGS.exe

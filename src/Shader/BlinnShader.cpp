@@ -9,13 +9,12 @@ namespace RGS {
 		varyings.WorldNormal = uniforms.ModelNormalToWorld * Vec4{ vertex.ModelNormal,0.0f };
 	}
 
-	void RayTracingVertexShader(BlinnVaryings& varyings, const BlinnVertex& vertex, const BlinnUniforms& uniforms)
+	void RayTracingVertexShader(RayTVertex& varyings, const RayTUniforms& uniforms)
 	{
-		varyings.CamPos = uniforms.MV * vertex.ModelPos;
-		varyings.ClipPos = uniforms.MVP * vertex.ModelPos;
-		varyings.TexCoord = vertex.TexCoord;
-		varyings.WorldPos = uniforms.Model * vertex.ModelPos;
-		varyings.WorldNormal = uniforms.ModelNormalToWorld * Vec4{ vertex.ModelNormal,0.0f };
+		varyings.CamPos = uniforms.MV * varyings.ModelPos;
+		varyings.TexCoord = varyings.TexCoord;
+		varyings.WorldPos = uniforms.Model * varyings.ModelPos;
+		varyings.WorldNormal = uniforms.Model* Vec4{ varyings.ModelNormal,0.0f };
 	}
 
 	Vec4 BlinnFragmentShader(bool& discard, const BlinnVaryings& varyings, const BlinnUniforms& uniforms)
@@ -64,27 +63,35 @@ namespace RGS {
 		return { finalColor,1.0f };
 	}
 
-	Vec4 RayTracingFragmentShader(bool& discard, const BlinnVaryings& varyings, const BlinnUniforms& uniforms)
+	Vec4 RayTracingFragmentShader(bool& discard, const RayTVertex& varyings, const RayTUniforms& uniforms)
 	{
-		return Vec4();
+		discard = false;
+
+		const Vec3& cameraPos = uniforms.CameraPos;
+		const Vec3& lightPos = { 2,2,2 };
+		const Vec3& worldPos = varyings.WorldPos;
+		Vec3 worldNormal = Normalize(varyings.WorldNormal);
+		Vec3 lightDir = Normalize(lightPos - worldPos);
+		Vec3 viewDir = Normalize(cameraPos - worldPos);
+		Vec3 halfDir = Normalize(lightDir + viewDir);
+
+		Vec3 ambient = uniforms.LightAmbient;
+		Vec3 specularStrength{ 1.0f,1.0f,1.0f };
+		Vec3 diffColor{ 1.0f,1.0f,1.0f };
+		if (uniforms.Diffuse && uniforms.Specular) {
+			diffColor = uniforms.Diffuse->Sample(varyings.TexCoord);
+			ambient = ambient * diffColor;
+			specularStrength = uniforms.Specular->Sample(varyings.TexCoord);
+		}
+
+		Vec3 diffuse = diffColor * uniforms.LightDiffuse * std::max(0.0f, Dot(worldNormal, lightDir));
+		Vec3 specular = uniforms.LightSpecular * specularStrength * (float)pow(std::max(0.0f, Dot(worldNormal, halfDir)), uniforms.Shininess);
+
+		Vec3 finalColor = (ambient + diffuse + specular);
+		return { finalColor,1.0f };
 	}
 
-	void Mesh::setBoundingBox(Mat4 MV)
-	{
-		minLoc = { 10000.0f,10000.0f,10000.0f };
-		maxLoc = { -10000.0f,-10000.0f,-10000.0f };
-		for (auto& tri : MeshData) {
-			for (int i = 0; i < 3; i++) {
-				Vec4 temp = (MV * tri[i].ModelPos);
-				minLoc.X = std::min(minLoc.X, temp.X);
-				minLoc.Y = std::min(minLoc.Y, temp.Y);
-				minLoc.Z = std::min(minLoc.Z, temp.Z);
-				maxLoc.X = std::max(maxLoc.X, temp.X);
-				maxLoc.Y = std::max(maxLoc.Y, temp.Y);
-				maxLoc.Z = std::max(maxLoc.Z, temp.Z);
-			}
-		}
-	}
+	
 
 }
 

@@ -9,3 +9,4 @@ D:\PractiseRender\src\RGS\Renderer.cpp;D:\PractiseRender\build\RGS.dir\Debug\Ren
 D:\PractiseRender\src\Shader\BlinnShader.cpp;D:\PractiseRender\build\RGS.dir\Debug\BlinnShader.obj
 D:\PractiseRender\src\RGS\Texture.cpp;D:\PractiseRender\build\RGS.dir\Debug\Texture.obj
 D:\PractiseRender\src\RGS\Ray.cpp;D:\PractiseRender\build\RGS.dir\Debug\Ray.obj
+D:\PractiseRender\src\RGS\KDTree.cpp;D:\PractiseRender\build\RGS.dir\Debug\KDTree.obj

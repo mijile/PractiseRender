@@ -1,4 +1,5 @@
 d:\practiserender\build\rgs.dir\debug\vc143.pdb
+d:\practiserender\build\rgs.dir\debug\kdtree.obj
 d:\practiserender\build\rgs.dir\debug\ray.obj
 d:\practiserender\build\rgs.dir\debug\texture.obj
 d:\practiserender\build\rgs.dir\debug\blinnshader.obj
@@ -7,9 +8,9 @@ d:\practiserender\build\rgs.dir\debug\vector.obj
 d:\practiserender\build\rgs.dir\debug\framebuffer.obj
 d:\practiserender\build\rgs.dir\debug\windowswindow.obj
 d:\practiserender\build\rgs.dir\debug\window.obj
-d:\practiserender\build\rgs.dir\debug\application.obj
 d:\practiserender\build\rgs.dir\debug\main.obj
 d:\practiserender\build\rgs.dir\debug\stb_image.obj
+d:\practiserender\build\rgs.dir\debug\application.obj
 d:\practiserender\build\cmakefiles\generate.stamp
 d:\practiserender\build\debug\rgs.exe
 d:\practiserender\build\debug\rgs.pdb

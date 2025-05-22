@@ -34,9 +34,15 @@
     <ClCompile Include="D:\PractiseRender\src\RGS\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\PractiseRender\src\RGS\KDTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D:\PractiseRender\src\RGS\Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\PractiseRender\src\RGS\Window.h">
@@ -64,6 +70,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\PractiseRender\src\RGS\Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\KDTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\PractiseRender\src\RGS\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,25 @@
 #define PI 3.14159265359
 #define EPSILON 1e-5f
 namespace RGS {
+
+	template<typename vertex_t>
+	struct Triangle {
+		//static_assert(std::is_base_of<VertexBase, vertex_t>::value, "vertex_t must be derived from VertexBase");
+
+		vertex_t Vertex[3];
+		float refractiveIndex = 1.0f;
+		vertex_t& operator[](int i) {
+			return Vertex[i];
+		}
+		const vertex_t& operator[](int i) const {
+			return Vertex[i];
+		}
+
+		Triangle() = default;
+
+
+	};
+
 	struct Vec2 {
 	public:
 		float X;
@@ -62,6 +81,40 @@ namespace RGS {
 		operator Vec2() const {
 			return { X,Y };
 		}
+
+		const float& operator [] (int x) const {
+			if (x == 0) {
+				return X;
+			}
+			else if (x == 1) {
+				return Y;
+			}
+			else if (x == 2) {
+				return Z;
+			}
+			else {
+				ASSERT(false);
+				return 0;
+			}
+
+		}
+		float& operator [] (int x) {
+			if (x == 0) {
+				return X;
+			}
+			else if (x == 1) {
+				return Y;
+			}
+			else if (x == 2) {
+				return Z;
+			}
+
+			else {
+				ASSERT(false);
+				return X;
+			}
+
+		}
 		Vec3 operator - (Vec3 v) {
 			return { X - v.X,Y - v.Y,Z - v.Z };
 		}
@@ -114,6 +167,44 @@ namespace RGS {
 		}
 		operator std::string()const {
 			return std::to_string(X) + " " + std::to_string(Y) + " " + std::to_string(Z) + " " + std::to_string(W);
+		}
+		const float& operator [] (int x) const {
+			if (x == 0) {
+				return X;
+			}
+			else if (x == 1) {
+				return Y;
+			}
+			else if (x == 2) {
+				return Z;
+			}
+			else if (x == 3) {
+				return W;
+			}
+			else {
+				ASSERT(false);
+				return 0;
+			}
+
+		}
+		float& operator [] (int x) {
+			if (x == 0) {
+				return X;
+			}
+			else if (x == 1) {
+				return Y;
+			}
+			else if (x == 2) {
+				return Z;
+			}
+			else if (x == 3) {
+				return W;
+			}
+			else {
+				ASSERT(false);
+				return X;
+			}
+
 		}
 		Vec4 operator * (float f) {
 			return { X * f,Y * f,Z * f,W*f };

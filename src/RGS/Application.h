@@ -9,7 +9,7 @@
 namespace RGS {
 	struct Camera 
 	{
-		Vec4 Pos = { 0.0f,0.8f,1.5f,1.0f };
+		Vec4 Pos = { 0.0f,0.4f,2.0f,1.0f };
 		Vec4 Right = { 1.0f,0.0f,0.0f,0.0f };
 		Vec4 Up = { 0.0f,1.0f,0.0f,0.0f };
 		Vec4 Dir = { 0.0f,0.0f,-1.0f,0.0f };
@@ -26,7 +26,7 @@ namespace RGS {
 		void Terminate();
 		void Update(float time);
 		void OnCameraUpdate(float time);
-		void LoadMesh(const char* fileName);
+		void LoadMesh(const char* fileName , Vec3 offset);
 	private:
 		std::string m_Name;
 		int m_Width;
@@ -36,9 +36,9 @@ namespace RGS {
 		Window* m_Window;
 		Camera m_Camera;
 
-		Mesh m_Mesh;
+		std::vector<Mesh> Geos;
 
-		BlinnUniforms m_Uniforms;
+		RayTUniforms m_Uniforms;
 	};
 
 
