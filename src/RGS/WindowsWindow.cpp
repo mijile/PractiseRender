@@ -10,7 +10,7 @@ namespace RGS {
 	WindowsWindow::WindowsWindow(const std::string title, int width, int height)
 		:Window(title, width, height)
 	{
-		ASSERT(s_Inited ,"Î´³õÊ¼»¯");
+		ASSERT(s_Inited ,"æœªåˆå§‹åŒ–");
 
 		DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 		RECT rect;
@@ -30,25 +30,25 @@ namespace RGS {
 		HDC windowDC = GetDC(m_Handle);
 		m_MemoryDC = CreateCompatibleDC(windowDC);
 
-		//ÉèÖÃ²¢Ê¹ÓÃÄÚ´æ
-		//³õÊ¼»¯Î»Í¼
+		//è®¾ç½®å¹¶ä½¿ç”¨å†…å­˜
+		//åˆå§‹åŒ–ä½å›¾
 		BITMAPINFOHEADER biHeader = {};
 		HBITMAP newBitmap;
 		HBITMAP oldBitmap;
 
 		biHeader.biSize = sizeof(BITMAPINFOHEADER);
 		biHeader.biWidth = (long(width));
-		biHeader.biHeight = -(long(height));	//ÎªÁËÈÃ×ø±êÏµÓë´°¿ÚÒ»ÖÂ£¬¸ß¶ÈÈ¡¸º
+		biHeader.biHeight = -(long(height));	//ä¸ºäº†è®©åæ ‡ç³»ä¸çª—å£ä¸€è‡´ï¼Œé«˜åº¦å–è´Ÿ
 		biHeader.biPlanes = 1;
-		biHeader.biBitCount = 24;//Ã¿¸öÉ«Õ¼8bit
+		biHeader.biBitCount = 24;//æ¯ä¸ªè‰²å 8bit
 		biHeader.biCompression = BI_RGB;
 
-		//·ÖÅä¿Õ¼ä
+		//åˆ†é…ç©ºé—´
 		newBitmap = CreateDIBSection(m_MemoryDC, (BITMAPINFO*)&biHeader, DIB_RGB_COLORS, (void**)&m_Buffer, NULL, 0);
 		ASSERT(newBitmap != nullptr);
 		constexpr int channelCount = 3;
 		int size = m_Width * m_Height * sizeof(unsigned char);
-		memset(m_Buffer, 0, size);//Ä¬ÈÏºÚÉ«
+		memset(m_Buffer, 0, size);//é»˜è®¤é»‘è‰²
 		oldBitmap = (HBITMAP)SelectObject(m_MemoryDC, newBitmap);
 
 		DeleteObject(oldBitmap);
@@ -59,15 +59,15 @@ namespace RGS {
 
 	WindowsWindow::~WindowsWindow()
 	{
-		ShowWindow(m_Handle, SW_HIDE);//Òş²Ø´°¿Ú
-		RemoveProp(m_Handle, RGS_WINDOW_ENTRY_NAME);//È¡Ïû°ó¶¨
+		ShowWindow(m_Handle, SW_HIDE);//éšè—çª—å£
+		RemoveProp(m_Handle, RGS_WINDOW_ENTRY_NAME);//å–æ¶ˆç»‘å®š
 		DeleteDC(m_MemoryDC);
 		DestroyWindow(m_Handle);
 	}
 	void WindowsWindow::Show() const
 	{
-		HDC windowDC = GetDC(m_Handle);//»ñÈ¡ÆÁÄ»
-		BitBlt(windowDC, 0, 0, m_Width, m_Height, m_MemoryDC, 0, 0, SRCCOPY); //½«ÄÚ´æÖĞµÄÍ¼Ïñ¿½±´µ½´°¿Ú
+		HDC windowDC = GetDC(m_Handle);//è·å–å±å¹•
+		BitBlt(windowDC, 0, 0, m_Width, m_Height, m_MemoryDC, 0, 0, SRCCOPY); //å°†å†…å­˜ä¸­çš„å›¾åƒæ‹·è´åˆ°çª—å£
 		ShowWindow(m_Handle, SW_SHOW);
 		ReleaseDC(m_Handle, windowDC);
 	}
@@ -89,15 +89,15 @@ namespace RGS {
 		WNDCLASS wc = {0};
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
-		wc.hbrBackground = (HBRUSH)(WHITE_BRUSH); //ÉèÖÃ±³¾°ÑÕÉ«
-		wc.hCursor = NULL;		//Ê¹ÓÃÄ¬ÈÏ¹â±ê
-		wc.hIcon = NULL;		//Ê¹ÓÃÄ¬ÈÏÍ¼±ê
+		wc.hbrBackground = (HBRUSH)(WHITE_BRUSH); //è®¾ç½®èƒŒæ™¯é¢œè‰²
+		wc.hCursor = NULL;		//ä½¿ç”¨é»˜è®¤å…‰æ ‡
+		wc.hIcon = NULL;		//ä½¿ç”¨é»˜è®¤å›¾æ ‡
 		wc.hInstance = GetModuleHandle(NULL);
-		wc.lpfnWndProc = WindowsWindow::WndProc;	//´°¿Ú´¦Àíº¯Êı
-		wc.lpszClassName = RGS_WINDOW_CLASS_NAME;	//´°¿ÚÀàÃû×Ö
-		wc.style = CS_HREDRAW | CS_VREDRAW;			//ÉèÖÃÀ­ÉìÊ±ÖØ»æ´°¿Ú
-		wc.lpszMenuName = NULL;		//ÉèÖÃÎªÎŞ²Ëµ¥	
-		atom = RegisterClass(&wc);	//×¢²á´°¿Ú
+		wc.lpfnWndProc = WindowsWindow::WndProc;	//çª—å£å¤„ç†å‡½æ•°
+		wc.lpszClassName = RGS_WINDOW_CLASS_NAME;	//çª—å£ç±»åå­—
+		wc.style = CS_HREDRAW | CS_VREDRAW;			//è®¾ç½®æ‹‰ä¼¸æ—¶é‡ç»˜çª—å£
+		wc.lpszMenuName = NULL;		//è®¾ç½®ä¸ºæ— èœå•	
+		atom = RegisterClass(&wc);	//æ³¨å†Œçª—å£
 	}
 	void WindowsWindow::Unregister()
 	{
@@ -114,7 +114,7 @@ namespace RGS {
 	}
 	void WindowsWindow::DrawFramebuffer(const Framebuffer& framebuffer)
 	{
-		//µ÷ÕûÊÓ¿Ú
+		//è°ƒæ•´è§†å£
 		const int fWidth = framebuffer.GetWidth();
 		const int fHeight = framebuffer.GetHeight();
 		const int width = min(m_Width, fWidth);
@@ -168,11 +168,11 @@ namespace RGS {
 	}
 	LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{	
-		//¾²Ì¬·½·¨ÎŞ·¨Ö±½ÓËø¶¨¶ÔÏó£¬ĞèÒªÏÈ»ñÈ¡
+		//é™æ€æ–¹æ³•æ— æ³•ç›´æ¥é”å®šå¯¹è±¡ï¼Œéœ€è¦å…ˆè·å–
 		WindowsWindow* window = (WindowsWindow*)GetProp(hwnd, RGS_WINDOW_ENTRY_NAME);
 		if (window == nullptr)
 		{
-			return DefWindowProc(hwnd, msg, wParam, lParam);//¹Ù·½Ä¬ÈÏ´¦Àíº¯Êı
+			return DefWindowProc(hwnd, msg, wParam, lParam);//å®˜æ–¹é»˜è®¤å¤„ç†å‡½æ•°
 		}
 
 		switch (msg)

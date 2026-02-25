@@ -25,7 +25,7 @@ namespace RGS {
 		//	color.W = 1.0f;
 		//	return color;
 		//}
-		////»æÖÆÌõÎÆ
+		////ç»˜åˆ¶æ¡çº¹
 		//else {
 		//	/*int x = varyings.FragPos.X;
 		//	if((x+10) % 10 >4){
@@ -35,7 +35,7 @@ namespace RGS {
 		//
 		//return Vec4{varyings.TexCoord.X ,varyings.TexCoord.Y ,0.0f , 1.0f};
 
-		//²âÊÔ
+		//æµ‹è¯•
 
 		discard = false;
 

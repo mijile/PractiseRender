@@ -12,55 +12,55 @@ namespace RGS {
 
 	struct BlinnVaryings : public VaryingBase {
 		Vec3 WorldPos;
-		Vec3 WorldNormal; //·¨ÏßÎ»ÖÃ	
-		Vec2 TexCoord;//²ÄÖÊÌùÍ¼×ø±ê
+		Vec3 WorldNormal; //æ³•çº¿ä½ç½®	
+		Vec2 TexCoord;//æè´¨è´´å›¾åæ ‡
 	};
 
 	
 
 	struct BlinnUniforms : public UniformBase {
 		Mat4 Model;
-		Mat4 ModelNormalToWorld;//Ä£ĞÍ·¨Ïßµ½ÊÀ½ç·¨ÏßµÄ±ä»»¾ØÕó
+		Mat4 ModelNormalToWorld;//æ¨¡å‹æ³•çº¿åˆ°ä¸–ç•Œæ³•çº¿çš„å˜æ¢çŸ©é˜µ
 		Vec3 LightPos{ 0.0f,1.0f,2.0f };
-		Vec3 LightAmbient{ 0.3f,0.3f,0.3f };//»·¾³¹âÉ«
-		Vec3 LightDiffuse{ 0.5f,0.5f,0.5f };//·´ÉäÉ«
-		Vec3 LightSpecular{ 1.0f,1.0f,1.0f };//¸ß¹âÉ«
-		Vec3 ObjectColor{ 1.0f,1.0f,1.0f };//ÎïÌåÑÕÉ«
-		Vec3 CameraPos;//Ïà»úÎ»ÖÃ
+		Vec3 LightAmbient{ 0.3f,0.3f,0.3f };//ç¯å¢ƒå…‰è‰²
+		Vec3 LightDiffuse{ 0.5f,0.5f,0.5f };//åå°„è‰²
+		Vec3 LightSpecular{ 1.0f,1.0f,1.0f };//é«˜å…‰è‰²
+		Vec3 ObjectColor{ 1.0f,1.0f,1.0f };//ç‰©ä½“é¢œè‰²
+		Vec3 CameraPos;//ç›¸æœºä½ç½®
 
-		float Lx=1;//Ë®Æ½·½ÏòµÄmipmap²ã¼¶
-		float Ly=1;//´¹Ö±·½ÏòµÄmipmap²ã¼¶
-		bool isMipmap = 1;//ÊÇ·ñÊ¹ÓÃmipmap
+		float Lx=1;//æ°´å¹³æ–¹å‘çš„mipmapå±‚çº§
+		float Ly=1;//å‚ç›´æ–¹å‘çš„mipmapå±‚çº§
+		bool isMipmap = 1;//æ˜¯å¦ä½¿ç”¨mipmap
 		int MaxDepth = 3;
-		float ReflectRatio = 0.3f;//·´ÉäÏµÊı
+		float ReflectRatio = 0.3f;//åå°„ç³»æ•°
 
 		Texture* Diffuse = nullptr;
 		Texture* Specular = nullptr;
 
-		float Shininess = 32.0f;//¸ß¹âÏµÊı
+		float Shininess = 32.0f;//é«˜å…‰ç³»æ•°
 		bool isAnother = false;
 	};
 
 	struct RayTUniforms : public UniformBase {
 		Mat4 Model;
-		Vec3 LightAmbient{ 0.3f,0.3f,0.3f };//»·¾³¹âÉ«
-		Vec3 LightDiffuse{ 0.5f,0.5f,0.5f };//·´ÉäÉ«
-		Vec3 LightSpecular{ 1.0f,1.0f,1.0f };//¸ß¹âÉ«
-		Vec3 ObjectColor{ 1.0f,1.0f,1.0f };//ÎïÌåÑÕÉ«
-		Vec3 CameraPos;//Ïà»úÎ»ÖÃ
+		Vec3 LightAmbient{ 0.3f,0.3f,0.3f };//ç¯å¢ƒå…‰è‰²
+		Vec3 LightDiffuse{ 0.5f,0.5f,0.5f };//åå°„è‰²
+		Vec3 LightSpecular{ 1.0f,1.0f,1.0f };//é«˜å…‰è‰²
+		Vec3 ObjectColor{ 1.0f,1.0f,1.0f };//ç‰©ä½“é¢œè‰²
+		Vec3 CameraPos;//ç›¸æœºä½ç½®
 
-		float Lx = 1;//Ë®Æ½·½ÏòµÄmipmap²ã¼¶
-		float Ly = 1;//´¹Ö±·½ÏòµÄmipmap²ã¼¶
-		bool isMipmap = 1;//ÊÇ·ñÊ¹ÓÃmipmap
+		float Lx = 1;//æ°´å¹³æ–¹å‘çš„mipmapå±‚çº§
+		float Ly = 1;//å‚ç›´æ–¹å‘çš„mipmapå±‚çº§
+		bool isMipmap = 1;//æ˜¯å¦ä½¿ç”¨mipmap
 		int MaxDepth = 3;
-		float ReflectRatio = 0.3f;//·´ÉäÏµÊı
+		float ReflectRatio = 0.3f;//åå°„ç³»æ•°
 
 		Texture* Diffuse = nullptr;
 		Texture* Specular = nullptr;
 
 		KDNode* kdTree = nullptr;
 
-		float Shininess = 32.0f;//¸ß¹âÏµÊı
+		float Shininess = 32.0f;//é«˜å…‰ç³»æ•°
 		bool isAnother = false;
 	};
 

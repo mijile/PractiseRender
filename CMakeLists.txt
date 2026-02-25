@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.15)
 project(RGS LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
+# Ensure source files are read as UTF-8
+if(MSVC)
+    add_compile_options(/utf-8)
+else()
+    add_compile_options(-finput-charset=UTF-8 -fexec-charset=UTF-8)
+endif()
+
 
 set(SOURCES
     "src/stb/stb_image.cpp"

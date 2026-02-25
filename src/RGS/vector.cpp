@@ -53,7 +53,7 @@ namespace RGS {
 	Mat4::Mat4(float m[4][4])
 	{
 		if (m == nullptr) {
-			// ´¦Àí´íÎó£¬ÀıÈç³õÊ¼»¯Îªµ¥Î»¾ØÕó»òÅ×³öÒì³£
+			// å¤„ç†é”™è¯¯ï¼Œä¾‹å¦‚åˆå§‹åŒ–ä¸ºå•ä½çŸ©é˜µæˆ–æŠ›å‡ºå¼‚å¸¸
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j < 4; j++) {
 					M[i][j] = (i == j) ? 1.0f : 0.0f;
@@ -243,9 +243,9 @@ namespace RGS {
 		float cosTheta = std::max(-1.0f, std::min(1.0f, Dot(I*-1, N)));
 		float sinTheta2 = eta * eta * (1.0f - cosTheta * cosTheta);
 
-		// ¼ì²éÊÇ·ñ·¢ÉúÈ«ÄÚ·´Éä
+		// æ£€æŸ¥æ˜¯å¦å‘ç”Ÿå…¨å†…åå°„
 		if (sinTheta2 > 1.0f) {
-			return false; // ÎŞ·¨ÕÛÉä
+			return false; // æ— æ³•æŠ˜å°„
 		}
 
 		float cosTheta2 = sqrt(1.0f - sinTheta2);

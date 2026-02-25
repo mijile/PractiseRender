@@ -4,19 +4,19 @@
 namespace RGS {
     struct KDNode {
         bool isLeaf;
-        int splitAxis; // ·Ö¸îÖá (0 = x, 1 = y, 2 = z)
-        float splitPos; // ·Ö¸îÆ½ÃæµÄÎ»ÖÃ
-        std::vector<RGS::Mesh> meshGroup;// Ò¶×Ó½Úµã´æ´¢µÄ¼¸ºÎÌå
-        //°üÎ§ºĞ
+        int splitAxis; // åˆ†å‰²è½´ (0 = x, 1 = y, 2 = z)
+        float splitPos; // åˆ†å‰²å¹³é¢çš„ä½ç½®
+        std::vector<RGS::Mesh> meshGroup;// å¶å­èŠ‚ç‚¹å­˜å‚¨çš„å‡ ä½•ä½“
+        //åŒ…å›´ç›’
         Vec3 minLoc ;
         Vec3 maxLoc ;
-        KDNode* left;  // ×ó×Ó½Úµã
-        KDNode* right; // ÓÒ×Ó½Úµã
+        KDNode* left;  // å·¦å­èŠ‚ç‚¹
+        KDNode* right; // å³å­èŠ‚ç‚¹
     };
 
     KDNode* BuildKDTree(std::vector<Mesh> Geos, int depth);
     float FindSplitPosition(std::vector<Mesh>& Geos, int splitAxis);
-    //ÅĞ¶Ï¹âÏßÓë×Ó½ÚµãÅö×²ºĞÏà½»
+    //åˆ¤æ–­å…‰çº¿ä¸å­èŠ‚ç‚¹ç¢°æ’ç›’ç›¸äº¤
     bool HitBox(const Ray& ray, double& t, Mesh& mesh);
     bool HitBox(const Ray& ray, Vec3 minLoc ,Vec3 maxLoc, double& t);
     KDNode* HitBox(KDNode* node, const Ray& ray, double& nearestT);

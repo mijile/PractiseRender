@@ -251,7 +251,7 @@ namespace RGS {
 			return static_cast<unsigned char>(Clamp(value * 255.0f, 0.0f, 255.0f));
 		}
 
-		// ½« Vec4 ×ª»»Îª 3 Í¨µÀ RGB
+		// å°† Vec4 è½¬æ¢ä¸º 3 é€šé“ RGB
 		void toRGB(unsigned char* rgb) {
 			rgb[0] = toByte(X);
 			rgb[1] = toByte(Y);
@@ -354,7 +354,7 @@ namespace RGS {
 		}
 	};
 
-	//¼ÆËã¶¨Òå
+	//è®¡ç®—å®šä¹‰
 	
 	Vec3 Cross(const Vec3& v1, const Vec3& v2);
 	Vec4 operator* (const Mat4& m, const Vec4& v);
@@ -366,7 +366,7 @@ namespace RGS {
 	Vec3 Normalize(const Vec3& v);
 	Vec4 Normalize(const Vec4& v);
 	Vec3 NormalizeToVec3(Vec4& v);
-	//¿Õ¼ä±ä»»
+	//ç©ºé—´å˜æ¢
 	Mat4 Mat4Translate(float tx, float ty ,float tz);
 	Mat4 Mat4Scale(float sx, float sy, float sz);
 	Mat4 Mat4RotateX(float angle);

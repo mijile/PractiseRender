@@ -26,11 +26,11 @@ namespace RGS {
 		bool EnableBlend = true;
 		bool EnableWriteDepth = true;
 		DepthFuncType DepthFunc = DepthFuncType::LESS;
-		//¶¥µã×ÅÉ«Æ÷
+		//é¡¶ç‚¹ç€è‰²å™¨
 		using vertex_shader_t = void (*)(varyings_t&, const vertex_t&, const uniforms_t&);
 		vertex_shader_t VertexShader;
 
-		//Æ¬¶Î×ÅÉ«Æ÷
+		//ç‰‡æ®µç€è‰²å™¨
 		using fragment_shader_t = Vec4 (*)(bool &discard, const varyings_t&, const uniforms_t&);
 		fragment_shader_t FragmentShader;
 
@@ -45,11 +45,11 @@ namespace RGS {
 		bool EnableBlend = true;
 		bool EnableWriteDepth = true;
 		DepthFuncType DepthFunc = DepthFuncType::LESS;
-		//¶¥µã×ÅÉ«Æ÷
+		//é¡¶ç‚¹ç€è‰²å™¨
 		using vertex_shader_t = void (*)(vertex_t&, const uniforms_t&);
 		vertex_shader_t VertexShader;
 
-		//Æ¬¶Î×ÅÉ«Æ÷
+		//ç‰‡æ®µç€è‰²å™¨
 		using fragment_shader_t = Vec4(*)(bool& discard, const vertex_t&, const uniforms_t&);
 		fragment_shader_t FragmentShader;
 
@@ -237,7 +237,7 @@ namespace RGS {
 			float* endFloat = (float*)&end;
 			float* outFloat = (float*)&out;
 
-			//°´ÕÕ±ÈÀı²åÖµ
+			//æŒ‰ç…§æ¯”ä¾‹æ’å€¼
 			for (int i = 0; i < (int)floatNum; i++) {
 				outFloat[i] = Lerp(startFloat[i], endFloat[i], ratio);
 			}
@@ -295,7 +295,7 @@ namespace RGS {
 			for (int i = 0; i < vertexNum; ++i) {
 				varyings[i].FragPos.X = (varyings[i].NdcPos.X + 1.0f) * 0.5f * width;
 				varyings[i].FragPos.Y = (varyings[i].NdcPos.Y + 1.0f) * 0.5f * height;
-				varyings[i].FragPos.Z = (varyings[i].NdcPos.Y + 1.0f) * 0.5f;//ºñ¶ÈÄ¬ÈÏÎª1
+				varyings[i].FragPos.Z = (varyings[i].NdcPos.Y + 1.0f) * 0.5f;//åšåº¦é»˜è®¤ä¸º1
 				varyings[i].FragPos.W = varyings[i].NdcPos.W;
 
 			}
@@ -305,44 +305,44 @@ namespace RGS {
 		template<typename varyings_t>
 		static bool Intersect(const Ray& ray, double& t, float(&weights)[3], varyings_t& object) {
 
-			// ¼ÆËãÈı½ÇĞÎµÄÁ½Ìõ±ß
+			// è®¡ç®—ä¸‰è§’å½¢çš„ä¸¤æ¡è¾¹
 			Vec3 E1 = object.Vertex[1].WorldPos - object.Vertex[0].WorldPos;
 			Vec3 E2 = object.Vertex[2].WorldPos - object.Vertex[0].WorldPos;
 
-			// ¼ÆËãĞĞÁĞÊ½
+			// è®¡ç®—è¡Œåˆ—å¼
 			Vec3 P = Cross(ray.Direction(), E2);
 			double det = Dot(E1, P);
 
-			// ¼ì²é¹âÏßÊÇ·ñÓëÈı½ÇĞÎÆ½ÃæÆ½ĞĞ
+			// æ£€æŸ¥å…‰çº¿æ˜¯å¦ä¸ä¸‰è§’å½¢å¹³é¢å¹³è¡Œ
 			if (fabs(det) < EPSILON) {
 				return false;
 			}
 
-			// ¼ÆËãÄæĞĞÁĞÊ½
+			// è®¡ç®—é€†è¡Œåˆ—å¼
 			double invDet = 1.0 / det;
 
-			// ¼ÆËã T ÏòÁ¿
+			// è®¡ç®— T å‘é‡
 			Vec3 T = ray.Origin() - object.Vertex[0].WorldPos;
 
-			// ¼ÆËã barycentric weights[0]
+			// è®¡ç®— barycentric weights[0]
 			weights[1] = Dot(T, P) * invDet;
 			if (weights[1] < 0.0 || weights[1] > 1.0) {
 				return false;
 			}
 
-			// ¼ÆËã Q ÏòÁ¿ºÍ weights[1]
+			// è®¡ç®— Q å‘é‡å’Œ weights[1]
 			Vec3 Q = Cross(T, E1);
 			weights[2] = Dot(ray.Direction(), Q) * invDet;
 			if (weights[2] < 0.0 || weights[2] + weights[1] > 1.0) {
 				return false;
 			}
 
-			// ¼ÆËã weights[2] ºÍ t
+			// è®¡ç®— weights[2] å’Œ t
 			weights[0] = 1.0 - weights[2] - weights[1];
 			t = Dot(E2, Q) * invDet;
 			//std::cout << "det: " << det << ", t: " << t << std::endl;
 			//std::cout << "weights[0]: " << weights[0] << ", weights[1]: " << weights[1] << ", weights[2]: " << weights[2] << std::endl;
-			// ·µ»ØÏà½»½á¹û
+			// è¿”å›ç›¸äº¤ç»“æœ
 
 
 			return t > EPSILON;
@@ -352,7 +352,7 @@ namespace RGS {
 
 		template<typename varyings_t>
 		static int Clip(varyings_t(&varyings)[RGS_MAX_VARYINGS]) {
-			//ÏÈÅĞ¶ÏÊÇ·ñÍêÈ«ÔÚÊÓ×¶ÌåÄÚ
+			//å…ˆåˆ¤æ–­æ˜¯å¦å®Œå…¨åœ¨è§†é”¥ä½“å†…
 			bool v0_visible = IsVertexVisible(varyings[0].ClipPos);
 			bool v1_visible = IsVertexVisible(varyings[1].ClipPos);
 			bool v2_visible = IsVertexVisible(varyings[2].ClipPos);
@@ -386,7 +386,7 @@ namespace RGS {
 			const varyings_t(&varyings)[3],
 			const uniforms_t& uniforms) 
 		{
-			//±³ÃæÌŞ³ı
+			//èƒŒé¢å‰”é™¤
 			if (!program.EnableDoubleSided) {
 				bool isBackFacing = false;
 				isBackFacing = IsBackFacing(varyings[0].NdcPos, varyings[1].NdcPos, varyings[2].NdcPos );
@@ -442,17 +442,17 @@ namespace RGS {
 			if (depth > uniforms.MaxDepth) {
 				return Vec4(0.0f, 0.0f, 0.5f, 0.8f);
 			}
-			//¼ì²âÅö×²
-				//±éÀúKDTree²éÕÒ
+			//æ£€æµ‹ç¢°æ’
+				//éå†KDTreeæŸ¥æ‰¾
 			double tBox = 10000;
 			KDNode* purNode = HitBox(uniforms.kdTree, ray,tBox);
 			/*std:: cout << tBox << std::endl;
 			system("pause");*/
-			//Î´¼ì²âµ½·µ»Ø±³¾°É«
+			//æœªæ£€æµ‹åˆ°è¿”å›èƒŒæ™¯è‰²
 			if (purNode == nullptr) {
-				return Vec4(0.0f, 0.0f, 0.5f, 0.8f);// À¶
+				return Vec4(0.0f, 0.0f, 0.5f, 0.8f);// è“
 			}
-			//´æÔÚ×Ó½ÚµãÓë¹âÏßÏà½»£¬ÔÙ±éÀú×Ó½ÚµãÄÚµÄÈı½ÇĞÎ¡£
+			//å­˜åœ¨å­èŠ‚ç‚¹ä¸å…‰çº¿ç›¸äº¤ï¼Œå†éå†å­èŠ‚ç‚¹å†…çš„ä¸‰è§’å½¢ã€‚
 			double boxTLast = 10000;
 			double boxT = 10000;
 			double tLast = 10000;
@@ -462,7 +462,7 @@ namespace RGS {
 			int triNo = -1;
 			for (auto mesh : purNode->meshGroup) {
 				meshNum++;
-				//ÅĞ¶ÏÅö×²ºĞ
+				//åˆ¤æ–­ç¢°æ’ç›’
 				bool isHitBox = false;
 				isHitBox = HitBox(ray, boxTLast, mesh);
 				if (isHitBox && boxTLast < boxT) {
@@ -470,11 +470,11 @@ namespace RGS {
 					meshNo = meshNum;
 				}
 			}
-			//Î´¼ì²âµ½·µ»Ø±³¾°É«
+			//æœªæ£€æµ‹åˆ°è¿”å›èƒŒæ™¯è‰²
 			if (meshNo == -1) {
-				return Vec4(0.5f, 0.0f, 0.0f, 0.8f);//ºì
+				return Vec4(0.5f, 0.0f, 0.0f, 0.8f);//çº¢
 			}
-			//?Èç¹û¾àÀë½üµÄ°üÎ§ºĞÎ´Åö×²µ½ÀïÃæµÄÈı½ÇĞÎ£¬»¹ĞèÒªÔÙ±éÀú¶àÒ»±éÂğ
+			//?å¦‚æœè·ç¦»è¿‘çš„åŒ…å›´ç›’æœªç¢°æ’åˆ°é‡Œé¢çš„ä¸‰è§’å½¢ï¼Œè¿˜éœ€è¦å†éå†å¤šä¸€éå—
 			if (meshNo != -1) {
 				for (int i = 0; i < purNode->meshGroup[meshNo].MeshData.size(); ++i) {
 					double tempT = tLast;
@@ -492,7 +492,7 @@ namespace RGS {
 					}
 				}
 			}
-			////Î´¼ì²âµ½·µ»Ø±³¾°É«
+			////æœªæ£€æµ‹åˆ°è¿”å›èƒŒæ™¯è‰²
 			//if (triNo == -1) {
 			//	boxTLast = 10000;
 			//	boxT = 10000;
@@ -505,7 +505,7 @@ namespace RGS {
 			//	for (auto mesh : purNode->meshGroup) {				
 			//		meshNum++;
 			//		if (meshNum == lastMeshNo)continue;
-			//		//ÅĞ¶ÏÅö×²ºĞ
+			//		//åˆ¤æ–­ç¢°æ’ç›’
 			//		bool isHitBox = false;
 			//		isHitBox = HitBox(ray, boxTLast, mesh);
 			//		if (isHitBox && boxTLast < boxT) {
@@ -513,11 +513,11 @@ namespace RGS {
 			//			meshNo = meshNum;
 			//		}
 			//	}
-			//	//Î´¼ì²âµ½·µ»Ø±³¾°É«
+			//	//æœªæ£€æµ‹åˆ°è¿”å›èƒŒæ™¯è‰²
 			//	if (meshNo == -1) {
-			//		return  Vec4(0.5f, 0.0f, 0.0f, 0.8f);//ºì
+			//		return  Vec4(0.5f, 0.0f, 0.0f, 0.8f);//çº¢
 			//	}
-			//	//?Èç¹û¾àÀë½üµÄ°üÎ§ºĞÎ´Åö×²µ½ÀïÃæµÄÈı½ÇĞÎ£¬»¹ĞèÒªÔÙ±éÀú¶àÒ»±éÂğ
+			//	//?å¦‚æœè·ç¦»è¿‘çš„åŒ…å›´ç›’æœªç¢°æ’åˆ°é‡Œé¢çš„ä¸‰è§’å½¢ï¼Œè¿˜éœ€è¦å†éå†å¤šä¸€éå—
 			//	if (meshNo != -1) {
 			//		for (int i = 0; i < purNode->meshGroup[meshNo].MeshData.size(); ++i) {
 			//			double tempT = tLast;
@@ -537,14 +537,14 @@ namespace RGS {
 			//	}
 			//}
 			if (triNo == -1) {
-				return Vec4(0.0f, 0.5f, 0.0f, 0.8f);//ÂÌ
+				return Vec4(0.0f, 0.5f, 0.0f, 0.8f);//ç»¿
 			}
 			vertex_t out;
 
 			bool discard = false;
 			RayLerpVaryings(out, purNode->meshGroup[meshNo].MeshData[triNo], weights, framebuffer.GetWidth(), framebuffer.GetHeight());
-			Vec4 color = program.FragmentShader(discard, out, uniforms); //³õÊ¼ÎïÌåÑÕÉ«
-			Vec3 hitPoint = ray.Origin() + ray.Direction() * tLast;//Åö×²µã
+			Vec4 color = program.FragmentShader(discard, out, uniforms); //åˆå§‹ç‰©ä½“é¢œè‰²
+			Vec3 hitPoint = ray.Origin() + ray.Direction() * tLast;//ç¢°æ’ç‚¹
 			Vec3 normal = Vec3(uniforms.MV* Vec4(out.WorldNormal,0) );
 			float refractiveIndex = purNode->meshGroup[meshNo].MeshData[triNo].refractiveIndex;
 			float eta = lastIndex / refractiveIndex;
@@ -553,20 +553,20 @@ namespace RGS {
 
 			bool canRefract = Refract(ray.Direction(), normal, eta, refractedDir);
 			if (lastIndex == refractiveIndex) {
-				//ÈôÁ½ÕßÕÛÉäÂÊÏàÍ¬£¬ÔòËµÃ÷ÊÇ´ÓÎïÌåÄÚÍùÍâ¿ÕÆøÉä³ö
+				//è‹¥ä¸¤è€…æŠ˜å°„ç‡ç›¸åŒï¼Œåˆ™è¯´æ˜æ˜¯ä»ç‰©ä½“å†…å¾€å¤–ç©ºæ°”å°„å‡º
 				eta = lastIndex;
 				return color;
 			}
-			// ¼ÆËã·ÆÄù¶û·´ÉäÂÊ
+			// è®¡ç®—è²æ¶…å°”åå°„ç‡
 			float fresnel = Fresnel(Dot(ray.Direction() * -1, normal), eta);
 
-			//·´Éä		
+			//åå°„		
 			Vec3 reflectDir = ray.Direction() - normal *Dot(ray.Direction(), normal) * 2;
 			Ray reflectRay = Ray(hitPoint, reflectDir);
-			Vec4 reflectColor = rayTrace(reflectRay, uniforms, program, framebuffer,depth + 1 , lastIndex) * fresnel;//ÉèÖÃ·´ÉäÏµÊı
+			Vec4 reflectColor = rayTrace(reflectRay, uniforms, program, framebuffer,depth + 1 , lastIndex) * fresnel;//è®¾ç½®åå°„ç³»æ•°
 
 			
-			//ÕÛÉä...
+			//æŠ˜å°„...
 			Vec4 refractColor = {0, 0, 0, 0};
 			if (canRefract) {
 				Ray refractRay = Ray(hitPoint, refractedDir);
@@ -583,7 +583,7 @@ namespace RGS {
 			const Triangle<vertex_t>& triangle, 
 			uniforms_t& uniforms)
 		{	
-			//¼ì²éÊÇ·ñ¼Ì³Ğ×Ô»ù´¡äÖÈ¾Àà
+			//æ£€æŸ¥æ˜¯å¦ç»§æ‰¿è‡ªåŸºç¡€æ¸²æŸ“ç±»
 			static_assert(std::is_base_of<VaryingBase, varyings_t>::value, "varyings_t must be derived from VaryingBase");
 			static_assert(std::is_base_of<VertexBase, vertex_t>::value, "uniforms_t must be derived from VertexBase");
 
@@ -591,21 +591,21 @@ namespace RGS {
 			for (int i = 0; i < 3; i++) {
 				program.VertexShader(varyings[i], triangle[i], uniforms);
 			}
-			//²Ã¼ô
+			//è£å‰ª
 			int vertexNum = Clip(varyings);
-			//Í¸ÊÓ³ı·¨±ê×¼»¯£«ÊÓ¿Ú±ä»»
+			//é€è§†é™¤æ³•æ ‡å‡†åŒ–ï¼‹è§†å£å˜æ¢
 			CalculateNdcPos(varyings, vertexNum);
 			int fWidth = framebuffer.GetWidth();
 			int fHeight = framebuffer.GetHeight();
 			CalculateFragPos(varyings , vertexNum , fWidth, fHeight);
 
-			//°´Èı½ÇĞÎ²ğ·ÖÍ¼Æ¬
+			//æŒ‰ä¸‰è§’å½¢æ‹†åˆ†å›¾ç‰‡
 			for (int i = 0; i < vertexNum - 2; ++i) {
 				varyings_t Triangle[3];
 				Triangle[0] = varyings[0];
 				Triangle[1] = varyings[i+1];
 				Triangle[2] = varyings[i+2];
-				//¼ÆËãÌİ¶È
+				//è®¡ç®—æ¢¯åº¦
 				//CalculateMipmapLevel(Triangle,uniforms);
 
 				RasterizeTriangle(framebuffer, program, Triangle, uniforms);
@@ -619,7 +619,7 @@ namespace RGS {
 			const RayTProgram<vertex_t, uniforms_t>& program,
 			uniforms_t& uniforms)
 		{
-			//¼ì²éÊÇ·ñ¼Ì³Ğ×Ô»ù´¡äÖÈ¾Àà
+			//æ£€æŸ¥æ˜¯å¦ç»§æ‰¿è‡ªåŸºç¡€æ¸²æŸ“ç±»
 			static_assert(std::is_base_of<VertexBase, vertex_t>::value, "uniforms_t must be derived from VertexBase");
 
 			/*varyings_t varyings[RGS_MAX_VARYINGS];
@@ -654,7 +654,7 @@ namespace RGS {
 			uniforms_t& uniforms,
 			Triangle<vertex_t>& tri)
 		{
-			//¼ì²éÊÇ·ñ¼Ì³Ğ×Ô»ù´¡äÖÈ¾Àà
+			//æ£€æŸ¥æ˜¯å¦ç»§æ‰¿è‡ªåŸºç¡€æ¸²æŸ“ç±»
 			static_assert(std::is_base_of<VertexBase, vertex_t>::value, "uniforms_t must be derived from VertexBase");
 
 			for (int i = 0; i < 3; i++) {

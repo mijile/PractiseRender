@@ -9,9 +9,9 @@ namespace RGS {
 		~WindowsWindow();
 		virtual void Show()const override;
 	public:
-		//publicµ÷ÓÃ×¢²áº¯Êı£¬ÊµÏÖ°²È«½Ó¿Ú
+		//publicè°ƒç”¨æ³¨å†Œå‡½æ•°ï¼Œå®ç°å®‰å…¨æ¥å£
 		static void Init();
-		static void Terminate();//ÖÕÖ¹
+		static void Terminate();//ç»ˆæ­¢
 		static void PollInputEvents();
 		virtual void DrawFramebuffer(const Framebuffer& framebuffer) override;
 
@@ -24,8 +24,8 @@ namespace RGS {
 		static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	private:
 		HWND m_Handle;
-		HDC m_MemoryDC;//ÓÃÓÚ»æÖÆµÄÄÚ´æDC
-		unsigned char* m_Buffer;//ÓÃÓÚ»æÖÆµÄÄÚ´æ»º³åÇø 
+		HDC m_MemoryDC;//ç”¨äºç»˜åˆ¶çš„å†…å­˜DC
+		unsigned char* m_Buffer;//ç”¨äºç»˜åˆ¶çš„å†…å­˜ç¼“å†²åŒº 
 
 		static bool s_Inited;
 	};

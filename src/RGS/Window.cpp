@@ -32,7 +32,7 @@ namespace RGS {
 
 	Window* Window::Create(const std::string title, int width, int height)
 	{
-//¿É¸ù¾İ²»Í¬µÄÆ½Ì¨Ñ¡Ôñ²»Í¬µÄ´°¿Ú
+//å¯æ ¹æ®ä¸åŒçš„å¹³å°é€‰æ‹©ä¸åŒçš„çª—å£
 //#ifdef RGS_PLATFORM_WINDOWS
 		return new WindowsWindow(title, width, height);
 //#endif	RGS_PLATFORM_MAC

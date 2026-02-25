@@ -10,10 +10,10 @@ namespace RGS {
 	};
 
 	struct VaryingBase {
-		Vec4 ClipPos = { 0,0,0,1 };//╡ц╪Т╨С╣двЬ╠Й
-		Vec4 CamPos = { 0,0,0,1 };//иЦоЯ╩З©у╪Доб╣двЬ╠Й
-		Vec4 NdcPos = { 0,0,0,1 };//NDS╠Йв╪©у╪Джп╣двЬ╠Й
-		Vec4 FragPos = { 0,0,0,1 };//йс©зм╤с╟╨С╣двЬ╠Й
+		Vec4 ClipPos = { 0,0,0,1 };//Хё│Е┴╙Е░▌Г └Е²░Ф═┤
+		Vec4 CamPos = { 0,0,0,1 };//Ф▒└Е┐▐Ф°╨Г╘╨И≈╢Д╦▀Г └Е²░Ф═┤
+		Vec4 NdcPos = { 0,0,0,1 };//NDSФ═┤Е┤├Г╘╨И≈╢Д╦╜Г └Е²░Ф═┤
+		Vec4 FragPos = { 0,0,0,1 };//Х╖├Е▐ёФ┼∙Е╫╠Е░▌Г └Е²░Ф═┤
 	};
 
 	struct UniformBase {

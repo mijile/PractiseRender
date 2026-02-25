@@ -6,7 +6,7 @@ namespace RGS {
 	{   
 		Vec3 minLoc = { 10000,10000,10000 };
 		Vec3 maxLoc = { -10000,-10000,-10000 };
-        //È·ÈÏ°üÎ§ºĞ
+        //ç¡®è®¤åŒ…å›´ç›’
         if (Geos.size() >= 1) {
 			for (auto& geom : Geos) {
 				for (int i = 0; i < 3; ++i) {
@@ -18,16 +18,16 @@ namespace RGS {
 
 
         if (Geos.size() <= 1 || depth > MAXDEPTH) {
-            // ´´½¨Ò¶×Ó½Úµã
+            // åˆ›å»ºå¶å­èŠ‚ç‚¹
             //std::cout << "leaf"<< minLoc[0] << minLoc[1] << minLoc[2] << " " << maxLoc[0] << maxLoc[1] << maxLoc[2] << std::endl;
             return new KDNode{ true, -1, 0.0f, Geos, minLoc, maxLoc, nullptr, nullptr};
         }
 
-        // Ñ¡Ôñ·Ö¸îÖáºÍ·Ö¸îÆ½Ãæ
-        int splitAxis = depth % 3; // °´ x, y, z Ñ­»·Ñ¡Ôñ·Ö¸îÖá
+        // é€‰æ‹©åˆ†å‰²è½´å’Œåˆ†å‰²å¹³é¢
+        int splitAxis = depth % 3; // æŒ‰ x, y, z å¾ªç¯é€‰æ‹©åˆ†å‰²è½´
         float splitPos = FindSplitPosition(Geos, splitAxis);
 
-        // »®·Ö¼¸ºÎÌå
+        // åˆ’åˆ†å‡ ä½•ä½“
         std::vector<Mesh> leftGeometries, rightGeometries;
         for (auto& geom : Geos) {
             float centroid = (geom.minLoc[splitAxis] + geom.maxLoc[splitAxis]) * 0.5f;
@@ -37,7 +37,7 @@ namespace RGS {
                 rightGeometries.push_back(geom);
         }
 
-        // ´´½¨ÄÚ²¿½Úµã
+        // åˆ›å»ºå†…éƒ¨èŠ‚ç‚¹
         KDNode* node = new KDNode{ false, splitAxis, splitPos, {}, minLoc, maxLoc, nullptr, nullptr };
         node->left = BuildKDTree(leftGeometries, depth + 1);
         node->right = BuildKDTree(rightGeometries, depth + 1);
@@ -53,67 +53,67 @@ namespace RGS {
     }
     bool HitBox(const Ray& ray, double& t, Mesh& mesh)
     {
-        double tmin = -INFINITY; // ³õÊ¼»¯Îª¸ºÎŞÇî´ó
-        double tmax = INFINITY;  // ³õÊ¼»¯ÎªÕıÎŞÇî´ó
+        double tmin = -INFINITY; // åˆå§‹åŒ–ä¸ºè´Ÿæ— ç©·å¤§
+        double tmax = INFINITY;  // åˆå§‹åŒ–ä¸ºæ­£æ— ç©·å¤§
         Vec3 ori = ray.Origin();
         Vec3 dir = ray.Direction();
-        for (int i = 0; i < 3; i++) { // ±éÀú x, y, z Èı¸öÖá
-            if (dir[i] == 0) { // Èç¹û¹âÏßÆ½ĞĞÓÚ¸ÃÖá
+        for (int i = 0; i < 3; i++) { // éå† x, y, z ä¸‰ä¸ªè½´
+            if (dir[i] == 0) { // å¦‚æœå…‰çº¿å¹³è¡Œäºè¯¥è½´
                 if (ori[i] < mesh.minLoc[i] || ori[i] >mesh.maxLoc[i]) {
-                    return false; // ¹âÏßÔÚÖáÉÏµÄÍ¶Ó°²»ÔÚºĞ×Ó·¶Î§ÄÚ
+                    return false; // å…‰çº¿åœ¨è½´ä¸Šçš„æŠ•å½±ä¸åœ¨ç›’å­èŒƒå›´å†…
                 }
             }
             else {
-                double invDir = 1.0 / dir[i]; // ¼ÆËã·½ÏòµÄµ¹Êı
-                double t0 = (mesh.minLoc[i] - ori[i]) * invDir; // ½øÈëÊ±¼ä
-                double t1 = (mesh.maxLoc[i] - ori[i]) * invDir; // Àë¿ªÊ±¼ä
+                double invDir = 1.0 / dir[i]; // è®¡ç®—æ–¹å‘çš„å€’æ•°
+                double t0 = (mesh.minLoc[i] - ori[i]) * invDir; // è¿›å…¥æ—¶é—´
+                double t1 = (mesh.maxLoc[i] - ori[i]) * invDir; // ç¦»å¼€æ—¶é—´
 
-                if (t0 > t1) std::swap(t0, t1); // È·±£ t0 ÊÇ½øÈëÊ±¼ä£¬t1 ÊÇÀë¿ªÊ±¼ä
+                if (t0 > t1) std::swap(t0, t1); // ç¡®ä¿ t0 æ˜¯è¿›å…¥æ—¶é—´ï¼Œt1 æ˜¯ç¦»å¼€æ—¶é—´
 
-                tmin = std::max(tmin, t0); // ¸üĞÂÈ«¾Ö½øÈëÊ±¼ä
-                tmax = std::min(tmax, t1); // ¸üĞÂÈ«¾ÖÀë¿ªÊ±¼ä
+                tmin = std::max(tmin, t0); // æ›´æ–°å…¨å±€è¿›å…¥æ—¶é—´
+                tmax = std::min(tmax, t1); // æ›´æ–°å…¨å±€ç¦»å¼€æ—¶é—´
                 
-                // Èç¹ûÊ±¼äÇø¼äÎŞĞ§£¬Ôò²»Ïà½»
+                // å¦‚æœæ—¶é—´åŒºé—´æ— æ•ˆï¼Œåˆ™ä¸ç›¸äº¤
                 if (tmin > tmax) return false;
             }
         }
         /*if (tmin < 0) {
             return false;
         }*/
-        t = tmin; // ·µ»Ø×î½üµÄÏà½»Ê±¼ä
+        t = tmin; // è¿”å›æœ€è¿‘çš„ç›¸äº¤æ—¶é—´
         return true;
     }
     bool HitBox(const Ray& ray, Vec3 minLoc, Vec3 maxLoc, double& t)
     {
-        double tmin = -INFINITY; // ³õÊ¼»¯Îª¸ºÎŞÇî´ó
-        double tmax = INFINITY;  // ³õÊ¼»¯ÎªÕıÎŞÇî´ó
+        double tmin = -INFINITY; // åˆå§‹åŒ–ä¸ºè´Ÿæ— ç©·å¤§
+        double tmax = INFINITY;  // åˆå§‹åŒ–ä¸ºæ­£æ— ç©·å¤§
         Vec3 ori = ray.Origin();
         Vec3 dir = ray.Direction();
-        for (int i = 0; i < 3; i++) { // ±éÀú x, y, z Èı¸öÖá
-            if (dir[i] == 0) { // Èç¹û¹âÏßÆ½ĞĞÓÚ¸ÃÖá
+        for (int i = 0; i < 3; i++) { // éå† x, y, z ä¸‰ä¸ªè½´
+            if (dir[i] == 0) { // å¦‚æœå…‰çº¿å¹³è¡Œäºè¯¥è½´
                 if (ori[i] < minLoc[i] || ori[i] >maxLoc[i]) {
-                    return false; // ¹âÏßÔÚÖáÉÏµÄÍ¶Ó°²»ÔÚºĞ×Ó·¶Î§ÄÚ
+                    return false; // å…‰çº¿åœ¨è½´ä¸Šçš„æŠ•å½±ä¸åœ¨ç›’å­èŒƒå›´å†…
                 }
             }
             else {
-                double invDir = 1.0 / dir[i]; // ¼ÆËã·½ÏòµÄµ¹Êı
-                double t0 = (minLoc[i] - ori[i]) * invDir; // ½øÈëÊ±¼ä
-                double t1 = (maxLoc[i] - ori[i]) * invDir; // Àë¿ªÊ±¼ä
+                double invDir = 1.0 / dir[i]; // è®¡ç®—æ–¹å‘çš„å€’æ•°
+                double t0 = (minLoc[i] - ori[i]) * invDir; // è¿›å…¥æ—¶é—´
+                double t1 = (maxLoc[i] - ori[i]) * invDir; // ç¦»å¼€æ—¶é—´
 
-                if (t0 > t1) std::swap(t0, t1); // È·±£ t0 ÊÇ½øÈëÊ±¼ä£¬t1 ÊÇÀë¿ªÊ±¼ä
+                if (t0 > t1) std::swap(t0, t1); // ç¡®ä¿ t0 æ˜¯è¿›å…¥æ—¶é—´ï¼Œt1 æ˜¯ç¦»å¼€æ—¶é—´
 
-                tmin = std::max(tmin, t0); // ¸üĞÂÈ«¾Ö½øÈëÊ±¼ä
-                tmax = std::min(tmax, t1); // ¸üĞÂÈ«¾ÖÀë¿ªÊ±¼ä
+                tmin = std::max(tmin, t0); // æ›´æ–°å…¨å±€è¿›å…¥æ—¶é—´
+                tmax = std::min(tmax, t1); // æ›´æ–°å…¨å±€ç¦»å¼€æ—¶é—´
 
                 
-                // Èç¹ûÊ±¼äÇø¼äÎŞĞ§£¬Ôò²»Ïà½»
+                // å¦‚æœæ—¶é—´åŒºé—´æ— æ•ˆï¼Œåˆ™ä¸ç›¸äº¤
                 if (tmin > tmax) return false;
             }
         }
        /* if (tmin < 0) {
             return false;
         }*/
-		t = tmin; // ·µ»Ø×î½üµÄÏà½»Ê±¼ä
+		t = tmin; // è¿”å›æœ€è¿‘çš„ç›¸äº¤æ—¶é—´
         return true;
     }
     KDNode* HitBox(KDNode* node, const Ray& ray, double& nearestT)
@@ -122,7 +122,7 @@ namespace RGS {
 
         double tBox;
         if (!HitBox(ray, node->minLoc, node->maxLoc, tBox)) return nullptr;
-        // Ö»´¦Àí×î½üµÄ½»µã
+        // åªå¤„ç†æœ€è¿‘çš„äº¤ç‚¹
         if (tBox > nearestT) return nullptr;
 
         if (node->isLeaf) {

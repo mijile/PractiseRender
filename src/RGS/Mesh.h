@@ -7,14 +7,14 @@ namespace RGS {
 		Vec3 ModelNormal;
 		Vec2 TexCoord = { 0.0f,0.0f };
 		Vec3 WorldPos;
-		Vec3 WorldNormal; //·¨ÏßÎ»ÖÃ
+		Vec3 WorldNormal; //æ³•çº¿ä½ç½®
 		Vec3 CamPos;
 	};
 	
 	struct Mesh {
-		//Èı½ÇĞÎÃæÊı¾İ
+		//ä¸‰è§’å½¢é¢æ•°æ®
 		std::vector<Triangle<RayTVertex> > MeshData;
-		//°üÎ§ºĞ
+		//åŒ…å›´ç›’
 		Mat4 Model;
 		Vec3 minLoc = { 0,0,0 };
 		Vec3 maxLoc = { 0,0,0 };

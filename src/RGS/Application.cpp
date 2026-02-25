@@ -100,7 +100,7 @@ namespace RGS {
 				//Renderer::RayTracingDraw(framebuffer, program, tri, m_Uniforms, m_Uniforms.ObjectPool);
 				//Renderer::Draw(framebuffer, program, tri, m_Uniforms);
 				
-				//´¦ÀíºÃÃ¿¸öÈı½ÇĞÎ
+				//å¤„ç†å¥½æ¯ä¸ªä¸‰è§’å½¢
 				Renderer::RayTracingPreDeal(framebuffer, rayTProgram, m_Uniforms, tri);
 			}
 			mesh.setBoundingBox();
@@ -124,7 +124,7 @@ namespace RGS {
 			}
 		}
 		system("pause");*/
-		//¹âÏß×·×Ù
+		//å…‰çº¿è¿½è¸ª
 		Renderer::RayTracingDraw(framebuffer, rayTProgram, m_Uniforms);
 		
 		/*Triangle<BlinnVertex> triangle;
@@ -189,28 +189,28 @@ namespace RGS {
 			std::getline(file, line);
 			int items = -1;
 			if (line.find("v ") == 0) {
-				//´æ¶¥µã×ø±ê
+				//å­˜é¡¶ç‚¹åæ ‡
 				Vec3 pos;
 				items = sscanf_s(line.c_str(), "v %f %f %f", &pos.X, &pos.Y, &pos.Z);
 				ASSERT(items == 3);
 				positions.push_back(pos);
 			}
 			else if (line.find("vt ") == 0) {
-				//´æÎÆÀí×ø±ê
+				//å­˜çº¹ç†åæ ‡
 				Vec2 texcoord;
 				items = sscanf_s(line.c_str(), "vt %f %f", &texcoord.X, &texcoord.Y);
 				ASSERT(items == 2);
 				texCoords.push_back(texcoord);
 			}
 			else if (line.find("vn ") == 0) {
-				//´æ·¨Ïß
+				//å­˜æ³•çº¿
 				Vec3 normal;
 				items = sscanf_s(line.c_str(), "vn %f %f %f", &normal.X, &normal.Y, &normal.Z);
 				ASSERT(items == 3);
 				normals.push_back(normal);
 			}
 			else if (line.find("f ") == 0) {
-				//´æÈı½ÇĞÎ¶ÔÓ¦µÄ¶¥µãË÷Òı
+				//å­˜ä¸‰è§’å½¢å¯¹åº”çš„é¡¶ç‚¹ç´¢å¼•
 				int posIndex[3], uvIndices[3], normalIndex[3];
 				items = sscanf_s(line.c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d",
 					&posIndex[0], &uvIndices[0], &normalIndex[0],
@@ -228,7 +228,7 @@ namespace RGS {
 
 		int triNum = posIndices.size() / 3;
 		for (int i = 0; i < triNum; ++i) {
-			//ÕâÀï×¢ÒâÇĞ»»¹â×·»òÕßblinnÒª¸ü»»
+			//è¿™é‡Œæ³¨æ„åˆ‡æ¢å…‰è¿½æˆ–è€…blinnè¦æ›´æ¢
 			Triangle<RayTVertex> tri;
 			for (int j = 0; j < 3; ++j) {
 				int index = 3 * i + j;

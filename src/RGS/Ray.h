@@ -17,12 +17,12 @@ namespace RGS {
 	};
     class PointLight {
     public:
-        Vec3 position;  // µã¹âÔ´µÄÎ»ÖÃ
-        Vec3 color;     // µã¹âÔ´µÄÑÕÉ«
-        float intensity; // µã¹âÔ´µÄÇ¿¶È
-        float attenuation; // Ë¥¼õÏµÊı
+        Vec3 position;  // ç‚¹å…‰æºçš„ä½ç½®
+        Vec3 color;     // ç‚¹å…‰æºçš„é¢œè‰²
+        float intensity; // ç‚¹å…‰æºçš„å¼ºåº¦
+        float attenuation; // è¡°å‡ç³»æ•°
 
-        // ¹¹Ôìº¯Êı
+        // æ„é€ å‡½æ•°
         PointLight(const Vec3& pos, const Vec3& col, float inten, float atten = 1.0f)
             : position(pos), color(col), intensity(inten), attenuation(atten) {
         }

@@ -9,12 +9,12 @@ namespace RGS {
 
     struct Light {
         LightType type;
-        Vec3 position;    // µã¹âÔ´/Ãæ¹âÔ´ÖĞĞÄ/·½Ïò¹âÎ»ÖÃ
-        Vec3 direction;   // ·½Ïò¹â/¾Û¹âµÆ·½Ïò
-        Vec3 u, v;        // Ãæ¹âÔ´µÄÁ½Ìõ±ß
-        Vec3 color;       // ¹âÔ´ÑÕÉ«
-        float intensity;  // ¹âÇ¿
-        float area;       // Ãæ¹âÔ´Ãæ»ı
-        // ¿ÉÀ©Õ¹¸ü¶àÊôĞÔ
+        Vec3 position;    // ç‚¹å…‰æº/é¢å…‰æºä¸­å¿ƒ/æ–¹å‘å…‰ä½ç½®
+        Vec3 direction;   // æ–¹å‘å…‰/èšå…‰ç¯æ–¹å‘
+        Vec3 u, v;        // é¢å…‰æºçš„ä¸¤æ¡è¾¹
+        Vec3 color;       // å…‰æºé¢œè‰²
+        float intensity;  // å…‰å¼º
+        float area;       // é¢å…‰æºé¢ç§¯
+        // å¯æ‰©å±•æ›´å¤šå±æ€§
     };
 }

@@ -1,7 +1,7 @@
 #include "Renderer.h"
 namespace RGS {
 	bool Renderer::IsVertexVisible(const Vec4& clipPos) {
-		//¸ù¾Ý-1<=x/w<=1ÅÐ¶ÏÊÇ·ñÔÚÊÓ×¶ÌåÄÚ
+		//æ ¹æ®-1<=x/w<=1åˆ¤æ–­æ˜¯å¦åœ¨è§†é”¥ä½“å†…
 		return clipPos.X >= -clipPos.W && clipPos.X <= clipPos.W &&
 			clipPos.Y >= -clipPos.W && clipPos.Y <= clipPos.W &&
 			clipPos.Z >= -clipPos.W && clipPos.Z <= clipPos.W;
@@ -81,7 +81,7 @@ namespace RGS {
 
 	bool Renderer::IsBackFacing(const Vec4& v1, const Vec4& v2, const Vec4& v3)
 	{
-		//ÅÐ¶ÏÁ¬ÐøµÄÁ½±ß·½ÏòÊÇË³Ê±Õë»¹ÊÇÄæÊ±ÕëÀ´È·¶¨ÃæµÄÕý·´
+		//åˆ¤æ–­è¿žç»­çš„ä¸¤è¾¹æ–¹å‘æ˜¯é¡ºæ—¶é’ˆè¿˜æ˜¯é€†æ—¶é’ˆæ¥ç¡®å®šé¢çš„æ­£å
 		float signedArea = v1.X * v2.Y - v1.Y * v2.X +
 						   v2.X * v3.Y - v2.Y * v3.X +
 						   v3.X * v1.Y - v3.Y * v1.X;
